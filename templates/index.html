@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Consulta | Alex Fortuna{% endblock %}{% block body %}
+<main><section class="hero"><h1>Bienvenido, camarada</h1><p>Aquí podrás buscar tus números y consultar el estado de pago de los mismos.</p><small>Los datos se muestran según los registros actualizados por el administrador.</small></section>
+<section class="card"><h2>📱 NÚMERO DE TELÉFONO</h2><form method="post" action="/consultar"><input name="telefono" inputmode="tel" placeholder="Ej: 300 123 4567" required><button>BUSCAR</button></form><p class="hint">Puedes ingresar el número con o sin +57, con o sin espacios.</p></section>
+<section class="warning"><h2>⚠️ TEN CUIDADO ⚠️</h2><p><b>Alex Fortuna</b> nunca te agregará ni te enviará invitaciones a un grupo sin tu consentimiento.</p></section></main>{% endblock %}

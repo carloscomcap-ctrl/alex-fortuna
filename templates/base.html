@@ -1,0 +1,5 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Alex Fortuna{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body>
+<div class="top"><div class="brand">ALEX <b>FORTUNA</b></div><div class="mini">SORTEOS • LOTERÍAS</div></div>
+{% with messages=get_flashed_messages(with_categories=true) %}{% for c,m in messages %}<div class="flash {{c}}">{{m}}</div>{% endfor %}{% endwith %}
+{% block body %}{% endblock %}<footer>Alex Fortuna · Sistema de consulta de números</footer></body></html>

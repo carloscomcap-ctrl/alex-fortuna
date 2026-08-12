@@ -265,3 +265,238 @@ body {
         text-align: center;
     }
 }
+
+/* ================================
+   BOLETAS ALEX FORTUNA
+   ================================ */
+
+.resultado-container {
+    width: 94%;
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+.resultado-titulo {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.resultado-titulo h1 {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.resultado-titulo p {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.telefono-consultado {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.telefono-consultado span {
+    color: #6b7280;
+}
+
+.telefono-consultado strong {
+    font-size: 18px;
+}
+
+.titulo-resultados {
+    margin-bottom: 18px;
+}
+
+.boletas {
+    display: grid;
+    gap: 22px;
+}
+
+.boleta {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+    border: 1px solid #e5e7eb;
+}
+
+.boleta-header {
+    background: #111827;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.boleta-header strong {
+    display: block;
+    font-size: 23px;
+    letter-spacing: 1px;
+}
+
+.boleta-header small {
+    display: block;
+    margin-top: 5px;
+    color: #d1d5db;
+    letter-spacing: 1px;
+}
+
+.boleta-numero {
+    background: white;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 900;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+.boleta-linea {
+    border-top: 2px dashed #d1d5db;
+    margin: 0 20px;
+}
+
+.boleta-nombre {
+    padding: 20px;
+}
+
+.boleta-nombre span {
+    display: block;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.boleta-nombre strong {
+    font-size: 20px;
+}
+
+.datos-boleta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 0 20px 20px;
+}
+
+.datos-boleta div {
+    background: #f9fafb;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.datos-boleta span {
+    display: block;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.datos-boleta strong {
+    font-size: 16px;
+}
+
+.estado-boleta {
+    padding: 0 20px 20px;
+}
+
+.estado-grande {
+    text-align: center;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.estado-grande.pagado {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.estado-grande.pendiente {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.boleta-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 13px 20px;
+    display: flex;
+    justify-content: space-between;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.sin-resultados {
+    background: white;
+    padding: 50px 25px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+
+.sin-resultados .icono {
+    font-size: 50px;
+}
+
+.btn-volver {
+    display: block;
+    width: fit-content;
+    margin: 25px auto;
+    background: #111827;
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+@media (max-width: 700px) {
+
+    .resultado-titulo h1 {
+        font-size: 27px;
+    }
+
+    .telefono-consultado {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .datos-boleta {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .boleta-header strong {
+        font-size: 19px;
+    }
+
+    .boleta-numero {
+        font-size: 18px;
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .datos-boleta {
+        grid-template-columns: 1fr;
+    }
+
+    .boleta-footer {
+        flex-direction: column;
+        gap: 5px;
+    }
+}

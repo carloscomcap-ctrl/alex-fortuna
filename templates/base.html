@@ -1,127 +1,60 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="es">
 
-{% block body %}
+<head>
 
-<div class="resultado-container">
+    <meta charset="utf-8">
 
-    <div class="resultado-titulo">
-        <h1>🎟️ ALEX FORTUNA</h1>
-        <p>SORTEOS • LOTERÍAS</p>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1">
+
+    <title>
+        {% block title %}
+        Alex Fortuna
+        {% endblock %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="top">
+
+        <div class="brand">
+            ALEX <b>FORTUNA</b>
+        </div>
+
+        <div class="mini">
+            SORTEOS • LOTERÍAS
+        </div>
+
     </div>
 
-    <div class="telefono-consultado">
-        <span>📱 Teléfono consultado</span>
-        <strong>{{ telefono }}</strong>
-    </div>
 
-    {% if ventas %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
 
-        <h2 class="titulo-resultados">
-            🎟️ Tus números
-        </h2>
+        {% for c, m in messages %}
 
-        <div class="boletas">
-
-            {% for venta in ventas %}
-
-            <div class="boleta">
-
-                <div class="boleta-header">
-
-                    <div>
-                        <strong>ALEX FORTUNA</strong>
-                        <small>SORTEOS • LOTERÍAS</small>
-                    </div>
-
-                    <div class="boleta-numero">
-                        #{{ venta.numero }}
-                    </div>
-
-                </div>
-
-                <div class="boleta-linea"></div>
-
-                <div class="boleta-nombre">
-                    <span>CLIENTE</span>
-                    <strong>{{ venta.nombre }}</strong>
-                </div>
-
-                <div class="datos-boleta">
-
-                    <div>
-                        <span>NÚMERO</span>
-                        <strong>{{ venta.numero }}</strong>
-                    </div>
-
-                    <div>
-                        <span>LOTERÍA</span>
-                        <strong>{{ venta.loteria }}</strong>
-                    </div>
-
-                    <div>
-                        <span>FECHA</span>
-                        <strong>{{ venta.fecha }}</strong>
-                    </div>
-
-                    <div>
-                        <span>VALOR</span>
-                        <strong>
-                            ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
-                        </strong>
-                    </div>
-
-                </div>
-
-                <div class="estado-boleta">
-
-                    {% if venta.estado == "PAGADO" %}
-
-                        <div class="estado-grande pagado">
-                            🟢 PAGADO
-                        </div>
-
-                    {% else %}
-
-                        <div class="estado-grande pendiente">
-                            🟡 PENDIENTE
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-                <div class="boleta-footer">
-                    <span>✓ Registro verificado</span>
-                    <span>Alex Fortuna</span>
-                </div>
-
+            <div class="flash {{ c }}">
+                {{ m }}
             </div>
 
-            {% endfor %}
+        {% endfor %}
 
-        </div>
+    {% endwith %}
 
-    {% else %}
 
-        <div class="sin-resultados">
+    {% block body %}
+    {% endblock %}
 
-            <div class="icono">🔎</div>
 
-            <h2>No encontramos números</h2>
+    <footer>
+        Alex Fortuna · Sistema de consulta de números
+    </footer>
 
-            <p>
-                No hay registros asociados al número de teléfono
-                consultado.
-            </p>
+</body>
 
-        </div>
-
-    {% endif %}
-
-    <a href="{{ url_for('home') }}" class="btn-volver">
-        ← Nueva consulta
-    </a>
-
-</div>
-
-{% endblock %}
+</html>

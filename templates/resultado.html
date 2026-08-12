@@ -1,132 +1,210 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="es">
 
-{% block content %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Consulta - Alex Fortuna</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="top">
+    <div class="brand">
+        ALEX <b>FORTUNA</b>
+    </div>
+
+    <div class="mini">
+        SORTEOS • LOTERÍAS
+    </div>
+</div>
+
 
 <div class="resultado-container">
 
     <div class="resultado-titulo">
+
         <h1>🎟️ ALEX FORTUNA</h1>
+
         <p>SORTEOS • LOTERÍAS</p>
+
     </div>
+
 
     <div class="telefono-consultado">
+
         <span>📱 Teléfono consultado</span>
+
         <strong>{{ telefono }}</strong>
+
     </div>
-    <p style="text-align:center; color:red; font-size:20px;">
-    REGISTROS ENCONTRADOS: {{ ventas|length }}
-</p>
+
 
     {% if ventas %}
-    <h2>PRUEBA: {{ ventas|length }} REGISTROS</h2>
-<p>Teléfono: {{ telefono }}</p>
 
         <h2 class="titulo-resultados">
             🎟️ Tus números
         </h2>
 
+
         <div class="boletas">
 
             {% for venta in ventas %}
 
-                <div class="boleta">
+            <div class="boleta">
 
-                    <div class="boleta-header">
+                <div class="boleta-header">
 
-                        <div>
-                            <strong>ALEX FORTUNA</strong>
-                            <small>SORTEOS • LOTERÍAS</small>
-                        </div>
+                    <div>
 
-                        <div class="boleta-numero">
-                            #{{ venta.numero }}
-                        </div>
+                        <strong>
+                            ALEX FORTUNA
+                        </strong>
 
-                    </div>
-
-                    <div class="boleta-linea"></div>
-
-                    <div class="boleta-nombre">
-                        <span>CLIENTE</span>
-                        <strong>{{ venta.nombre }}</strong>
-                    </div>
-
-                    <div class="datos-boleta">
-
-                        <div>
-                            <span>NÚMERO</span>
-                            <strong>{{ venta.numero }}</strong>
-                        </div>
-
-                        <div>
-                            <span>LOTERÍA</span>
-                            <strong>{{ venta.loteria }}</strong>
-                        </div>
-
-                        <div>
-                            <span>FECHA</span>
-                            <strong>{{ venta.fecha }}</strong>
-                        </div>
-
-                        <div>
-                            <span>VALOR</span>
-                            <strong>
-                                ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
-                            </strong>
-                        </div>
+                        <small>
+                            SORTEOS • LOTERÍAS
+                        </small>
 
                     </div>
 
-                    <div class="estado-boleta">
 
-                        {% if venta.estado == "PAGADO" %}
+                    <div class="boleta-numero">
 
-                            <div class="estado-grande pagado">
-                                🟢 PAGADO
-                            </div>
+                        #{{ venta.numero }}
 
-                        {% else %}
-
-                            <div class="estado-grande pendiente">
-                                🟡 PENDIENTE
-                            </div>
-
-                        {% endif %}
-
-                    </div>
-
-                    <div class="boleta-footer">
-                        <span>✓ Registro verificado</span>
-                        <span>Alex Fortuna</span>
                     </div>
 
                 </div>
+
+
+                <div class="boleta-linea"></div>
+
+
+                <div class="boleta-nombre">
+
+                    <span>CLIENTE</span>
+
+                    <strong>
+                        {{ venta.nombre }}
+                    </strong>
+
+                </div>
+
+
+                <div class="datos-boleta">
+
+                    <div>
+
+                        <span>NÚMERO</span>
+
+                        <strong>
+                            {{ venta.numero }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>LOTERÍA</span>
+
+                        <strong>
+                            {{ venta.loteria }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>FECHA</span>
+
+                        <strong>
+                            {{ venta.fecha }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>VALOR</span>
+
+                        <strong>
+                            ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="estado-boleta">
+
+                    {% if venta.estado == "PAGADO" %}
+
+                        <div class="estado-grande pagado">
+
+                            🟢 PAGADO
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="estado-grande pendiente">
+
+                            🟡 PENDIENTE
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="boleta-footer">
+
+                    <span>
+                        ✓ Registro verificado
+                    </span>
+
+                    <span>
+                        Alex Fortuna
+                    </span>
+
+                </div>
+
+            </div>
 
             {% endfor %}
 
         </div>
 
+
     {% else %}
 
         <div class="sin-resultados">
 
-            <div class="icono">🔎</div>
+            <div class="icono">
+                🔎
+            </div>
 
-            <h2>No encontramos números</h2>
+            <h2>
+                No encontramos números
+            </h2>
 
             <p>
-                No hay registros asociados al número de teléfono
-                consultado.
+                No hay registros asociados al número de teléfono consultado.
             </p>
 
         </div>
 
     {% endif %}
 
-    <a href="{{ url_for('home') }}" class="btn-volver">
-        ← Nueva consulta
-    </a>
 
-</div>
-
-{% endblock %}
+    <a href="{{ url_for('home') }}"
+       class="btn-volver">

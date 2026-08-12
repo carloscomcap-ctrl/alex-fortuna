@@ -1,100 +1,139 @@
-{% extends "base.html" %}
+<!doctype html>
+<html lang="es">
 
-{% block content %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Panel Administrador - Alex Fortuna</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="top">
+
+    <div class="brand">
+        ALEX <b>FORTUNA</b>
+    </div>
+
+    <div class="mini">
+        SORTEOS • LOTERÍAS
+    </div>
+
+</div>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% for c, m in messages %}
+
+        <div class="flash {{ c }}">
+            {{ m }}
+        </div>
+
+    {% endfor %}
+
+{% endwith %}
+
 
 <div class="admin-container">
 
     <div class="admin-header">
+
         <div>
-            <h1>🎟️ Panel de Alex Fortuna</h1>
+            <h1>Panel de Alex Fortuna</h1>
             <p>Administración de ventas y números</p>
         </div>
 
         <a href="{{ url_for('logout') }}" class="btn-logout">
-            🔴 Cerrar sesión
+            Cerrar sesión
         </a>
-    </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert {{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+    </div>
 
 
     <!-- REGISTRAR VENTA -->
-    <div class="admin-card">
+
+    <section class="admin-card">
 
         <h2>➕ Registrar venta</h2>
 
-        <form method="POST">
+        <form method="POST" action="{{ url_for('admin') }}">
 
             <div class="form-grid">
 
                 <input
                     type="text"
                     name="telefono"
-                    placeholder="📱 Teléfono"
+                    placeholder="Teléfono"
                     required
                 >
 
                 <input
                     type="text"
                     name="nombre"
-                    placeholder="👤 Nombre"
+                    placeholder="Nombre"
                     required
                 >
 
                 <input
                     type="text"
                     name="numero"
-                    placeholder="🔢 Número"
+                    placeholder="Número"
                     required
                 >
 
                 <input
                     type="text"
                     name="loteria"
-                    placeholder="🎰 Lotería"
+                    placeholder="Lotería"
                     required
                 >
 
                 <input
                     type="text"
                     name="fecha"
-                    placeholder="📅 Fecha"
+                    placeholder="Fecha"
                     required
                 >
 
                 <input
                     type="number"
                     name="valor"
-                    placeholder="💰 Valor"
+                    placeholder="Valor"
                     min="0"
+                    required
                 >
 
                 <select name="estado">
-                    <option value="PENDIENTE">PENDIENTE</option>
-                    <option value="PAGADO">PAGADO</option>
+
+                    <option value="PENDIENTE">
+                        PENDIENTE
+                    </option>
+
+                    <option value="PAGADO">
+                        PAGADO
+                    </option>
+
                 </select>
 
-                <button type="submit" class="btn-save">
-                    💾 GUARDAR VENTA
+                <button type="submit">
+                    GUARDAR
                 </button>
 
             </div>
 
         </form>
 
-    </div>
+    </section>
 
 
     <!-- EXCEL -->
-    <div class="admin-card">
+
+    <section class="admin-card">
 
         <h2>📊 Excel</h2>
 
@@ -107,7 +146,6 @@
             method="POST"
             action="{{ url_for('importar') }}"
             enctype="multipart/form-data"
-            class="excel-form"
         >
 
             <input
@@ -117,37 +155,40 @@
                 required
             >
 
-            <button type="submit" class="btn-excel">
-                📥 IMPORTAR EXCEL
+            <button type="submit">
+                IMPORTAR EXCEL
             </button>
 
         </form>
 
         <br>
 
-        <a
-            href="{{ url_for('exportar') }}"
-            class="btn-download"
-        >
+        <a href="{{ url_for('exportar') }}">
             📥 Descargar Excel
         </a>
 
-    </div>
+    </section>
 
 
     <!-- VENTAS -->
-    <div class="admin-card">
 
-        <h2>📋 Ventas registradas: {{ ventas|length }}</h2>
+    <section class="admin-card">
+
+        <h2>
+            📋 Ventas: {{ ventas|length }}
+        </h2>
+
 
         {% if ventas %}
 
-        <div class="table-container">
+        <div class="tabla-container">
 
-            <table class="ventas-table">
+            <table>
 
                 <thead>
+
                     <tr>
+
                         <th>Teléfono</th>
                         <th>Nombre</th>
                         <th>Número</th>
@@ -156,8 +197,11 @@
                         <th>Valor</th>
                         <th>Estado</th>
                         <th>Acciones</th>
+
                     </tr>
+
                 </thead>
+
 
                 <tbody>
 
@@ -165,17 +209,27 @@
 
                     <tr>
 
-                        <td>{{ venta.telefono }}</td>
-
-                        <td>{{ venta.nombre }}</td>
-
                         <td>
-                            <strong>{{ venta.numero }}</strong>
+                            {{ venta.telefono }}
                         </td>
 
-                        <td>{{ venta.loteria }}</td>
+                        <td>
+                            {{ venta.nombre }}
+                        </td>
 
-                        <td>{{ venta.fecha }}</td>
+                        <td>
+                            <strong>
+                                {{ venta.numero }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ venta.loteria }}
+                        </td>
+
+                        <td>
+                            {{ venta.fecha }}
+                        </td>
 
                         <td>
                             ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
@@ -201,39 +255,35 @@
 
                         <td>
 
-                            <div class="acciones">
+                            <form
+                                method="POST"
+                                action="{{ url_for('cambiar_estado', id=venta.id) }}"
+                                style="display:inline;"
+                            >
 
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('cambiar_estado', id=venta.id) }}"
-                                >
+                                <button type="submit">
+                                    {% if venta.estado == "PAGADO" %}
+                                        PENDIENTE
+                                    {% else %}
+                                        PAGAR
+                                    {% endif %}
+                                </button>
 
-                                    <button
-                                        type="submit"
-                                        class="btn-estado"
-                                    >
-                                        🔄 Cambiar estado
-                                    </button>
-
-                                </form>
+                            </form>
 
 
-                                <form
-                                    method="POST"
-                                    action="{{ url_for('eliminar', id=venta.id) }}"
-                                    onsubmit="return confirm('¿Seguro que deseas eliminar esta venta?');"
-                                >
+                            <form
+                                method="POST"
+                                action="{{ url_for('eliminar', id=venta.id) }}"
+                                style="display:inline;"
+                                onsubmit="return confirm('¿Seguro que deseas eliminar esta venta?');"
+                            >
 
-                                    <button
-                                        type="submit"
-                                        class="btn-delete"
-                                    >
-                                        🗑️ Eliminar
-                                    </button>
+                                <button type="submit">
+                                    ❌
+                                </button>
 
-                                </form>
-
-                            </div>
+                            </form>
 
                         </td>
 
@@ -249,14 +299,17 @@
 
         {% else %}
 
-            <div class="empty">
-                📭 No hay ventas registradas.
-            </div>
+            <p>
+                No hay ventas registradas.
+            </p>
 
         {% endif %}
 
-    </div>
+    </section>
 
 </div>
 
-{% endblock %}
+
+<footer>
+    Alex Fortuna · Sistema de consulta de números
+</footer>

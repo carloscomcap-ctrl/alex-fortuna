@@ -1,5 +1,20 @@
-{% extends "base.html" %}{% block title %}Resultado | Alex Fortuna{% endblock %}{% block body %}
-<main><section class="card"><h1>Resultado de consulta</h1><p>Teléfono consultado: <b>{{telefono}}</b></p>
-{% if ventas %}<div class="table"><table><tr><th>Número</th><th>Lotería</th><th>Fecha</th><th>Valor</th><th>Estado</th></tr>
-{% for v in ventas %}<tr><td class="numero">{{v.numero}}</td><td>{{v.loteria}}</td><td>{{v.fecha}}</td><td>${{ "{:,}".format(v.valor).replace(",", ".") }}</td><td><span class="estado {{v.estado|lower}}">{{v.estado}}</span></td></tr>{% endfor %}</table></div>
-{% else %}<div class="empty">No encontramos números asociados a este teléfono.</div>{% endif %}<a class="back" href="/">← Nueva consulta</a></section></main>{% endblock %}
+ <div class="icono">🔎</div>
+
+            <h2>No encontramos números</h2>
+
+            <p>
+                No hay registros asociados al número de teléfono
+                consultado.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+    <a href="{{ url_for('home') }}" class="btn-volver">
+        ← Nueva consulta
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,8 +1,262 @@
-{% extends "base.html" %}{% block title %}Panel | Alex Fortuna{% endblock %}{% block body %}
-<main><div class="adminbar"><h1>Panel de Alex Fortuna</h1><a href="/admin/logout">Cerrar sesión</a></div>
-<section class="card"><h2>➕ Registrar venta</h2><form class="grid" method="post">
-<input name="telefono" placeholder="Teléfono" required><input name="nombre" placeholder="Nombre" required><input name="numero" placeholder="Número" required><input name="loteria" placeholder="Lotería" required><input name="fecha" placeholder="Fecha" required><input name="valor" type="number" placeholder="Valor"><select name="estado"><option>PENDIENTE</option><option>PAGADO</option></select><button>GUARDAR</button></form></section>
-<section class="card"><h2>📊 Excel</h2><p>Columnas: telefono, nombre, numero, loteria, fecha, valor, estado</p><form action="/admin/importar" method="post" enctype="multipart/form-data"><input type="file" name="archivo" accept=".xlsx,.xls" required><button>IMPORTAR EXCEL</button></form><a class="back" href="/admin/exportar">📥 Descargar Excel</a></section>
-<section class="card"><h2>📋 Ventas: {{ventas|length}}</h2><div class="table"><table><tr><th>Teléfono</th><th>Nombre</th><th>Número</th><th>Lotería</th><th>Estado</th><th></th></tr>
-{% for v in ventas %}<tr><td>{{v.telefono}}</td><td>{{v.nombre}}</td><td class="numero">{{v.numero}}</td><td>{{v.loteria}}</td><td><span class="estado {{v.estado|lower}}">{{v.estado}}</span></td><td><form class="inline" method="post" action="/admin/estado/{{v.id}}"><button>Estado</button></form><form class="inline" method="post" action="/admin/eliminar/{{v.id}}"><button class="danger">X</button></form></td></tr>{% endfor %}
-</table></div></section></main>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <div>
+            <h1>🎟️ Panel de Alex Fortuna</h1>
+            <p>Administración de ventas y números</p>
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="btn-logout">
+            🔴 Cerrar sesión
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <!-- REGISTRAR VENTA -->
+    <div class="admin-card">
+
+        <h2>➕ Registrar venta</h2>
+
+        <form method="POST">
+
+            <div class="form-grid">
+
+                <input
+                    type="text"
+                    name="telefono"
+                    placeholder="📱 Teléfono"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="nombre"
+                    placeholder="👤 Nombre"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="numero"
+                    placeholder="🔢 Número"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="loteria"
+                    placeholder="🎰 Lotería"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="fecha"
+                    placeholder="📅 Fecha"
+                    required
+                >
+
+                <input
+                    type="number"
+                    name="valor"
+                    placeholder="💰 Valor"
+                    min="0"
+                >
+
+                <select name="estado">
+                    <option value="PENDIENTE">PENDIENTE</option>
+                    <option value="PAGADO">PAGADO</option>
+                </select>
+
+                <button type="submit" class="btn-save">
+                    💾 GUARDAR VENTA
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- EXCEL -->
+    <div class="admin-card">
+
+        <h2>📊 Excel</h2>
+
+        <p>
+            Columnas:
+            telefono, nombre, numero, loteria, fecha, valor, estado
+        </p>
+
+        <form
+            method="POST"
+            action="{{ url_for('importar') }}"
+            enctype="multipart/form-data"
+            class="excel-form"
+        >
+
+            <input
+                type="file"
+                name="archivo"
+                accept=".xlsx,.xls"
+                required
+            >
+
+            <button type="submit" class="btn-excel">
+                📥 IMPORTAR EXCEL
+            </button>
+
+        </form>
+
+        <br>
+
+        <a
+            href="{{ url_for('exportar') }}"
+            class="btn-download"
+        >
+            📥 Descargar Excel
+        </a>
+
+    </div>
+
+
+    <!-- VENTAS -->
+    <div class="admin-card">
+
+        <h2>📋 Ventas registradas: {{ ventas|length }}</h2>
+
+        {% if ventas %}
+
+        <div class="table-container">
+
+            <table class="ventas-table">
+
+                <thead>
+                    <tr>
+                        <th>Teléfono</th>
+                        <th>Nombre</th>
+                        <th>Número</th>
+                        <th>Lotería</th>
+                        <th>Fecha</th>
+                        <th>Valor</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for venta in ventas %}
+
+                    <tr>
+
+                        <td>{{ venta.telefono }}</td>
+
+                        <td>{{ venta.nombre }}</td>
+
+                        <td>
+                            <strong>{{ venta.numero }}</strong>
+                        </td>
+
+                        <td>{{ venta.loteria }}</td>
+
+                        <td>{{ venta.fecha }}</td>
+
+                        <td>
+                            ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
+                        </td>
+
+                        <td>
+
+                            {% if venta.estado == "PAGADO" %}
+
+                                <span class="estado pagado">
+                                    🟢 PAGADO
+                                </span>
+
+                            {% else %}
+
+                                <span class="estado pendiente">
+                                    🟡 PENDIENTE
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            <div class="acciones">
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('cambiar_estado', id=venta.id) }}"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn-estado"
+                                    >
+                                        🔄 Cambiar estado
+                                    </button>
+
+                                </form>
+
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('eliminar', id=venta.id) }}"
+                                    onsubmit="return confirm('¿Seguro que deseas eliminar esta venta?');"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn-delete"
+                                    >
+                                        🗑️ Eliminar
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+            <div class="empty">
+                📭 No hay ventas registradas.
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

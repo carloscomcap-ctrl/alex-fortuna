@@ -257,42 +257,59 @@ def admin():
             url_for("login")
         )
 
-    if request.method == "POST":
+   if request.method == "POST":
+    try:
 
-        try:
+        telefono = clean_phone(
+            request.form["telefono"]
+        )
+
+        nombre = request.form["nombre"].strip()
+
+        numero = request.form["numero"].strip()
+
+        loteria = request.form["loteria"].strip()
+
+        fecha = request.form["fecha"].strip()
+
+        valor = int(
+            request.form.get("valor") or 0
+        )
+
+        estado = request.form.get(
+            "estado",
+            "PENDIENTE"
+        )
+
+
+        # ==========================================
+        # COMPROBAR NÚMERO DUPLICADO
+        # ==========================================
+
+        existente = Venta.query.filter_by(
+            numero=numero,
+            loteria=loteria
+        ).first()
+
+
+        if existente:
+
+            flash(
+                f"⚠️ El número {numero} ya está registrado "
+                f"para {loteria}.",
+                "error"
+            )
+
+        else:
 
             venta = Venta(
-
-                telefono=clean_phone(
-                    request.form["telefono"]
-                ),
-
-                nombre=request.form[
-                    "nombre"
-                ].strip(),
-
-                numero=request.form[
-                    "numero"
-                ].strip(),
-
-                loteria=request.form[
-                    "loteria"
-                ].strip(),
-
-                fecha=request.form[
-                    "fecha"
-                ].strip(),
-
-                valor=int(
-                    request.form.get(
-                        "valor"
-                    ) or 0
-                ),
-
-                estado=request.form.get(
-                    "estado",
-                    "PENDIENTE"
-                )
+                telefono=telefono,
+                nombre=nombre,
+                numero=numero,
+                loteria=loteria,
+                fecha=fecha,
+                valor=valor,
+                estado=estado
             )
 
             db.session.add(venta)
@@ -300,20 +317,20 @@ def admin():
             db.session.commit()
 
             flash(
-                "Venta registrada correctamente.",
+                "✅ Venta registrada correctamente.",
                 "ok"
             )
 
-        except Exception as error:
 
-            db.session.rollback()
+    except Exception as error:
 
-            flash(
-                "No se pudo guardar: "
-                + str(error),
-                "error"
-            )
+        db.session.rollback()
 
+        flash(
+            "No se pudo guardar: "
+            + str(error),
+            "error"
+        )
     ventas = (
         Venta.query
         .order_by(Venta.id.desc())

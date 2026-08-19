@@ -1,5 +1,3 @@
-import os, io, re
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 import os
 import io
 import re
@@ -19,10 +17,11 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 
-app=Flask(__name__)
-app.secret_key=os.environ.get("SECRET_KEY","cambia-esta-clave-en-produccion")
 
-db_url=os.environ.get("DATABASE_URL","sqlite:///alex_fortuna.db")
+# =========================
+# APLICACIÓN
+# =========================
+
 app = Flask(__name__)
 
 app.secret_key = os.environ.get(
@@ -41,10 +40,6 @@ db_url = os.environ.get(
 )
 
 if db_url.startswith("postgres://"):
-    db_url=db_url.replace("postgres://","postgresql://",1)
-app.config["SQLALCHEMY_DATABASE_URI"]=db_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"]=False
-db=SQLAlchemy(app)
     db_url = db_url.replace(
         "postgres://",
         "postgresql://",
@@ -61,8 +56,6 @@ db = SQLAlchemy(app)
 # ADMINISTRADOR
 # =========================
 
-ADMIN_USER=os.environ.get("ADMIN_USER","admin")
-ADMIN_PASSWORD_HASH=generate_password_hash(os.environ.get("ADMIN_PASSWORD","cambiar123"))
 ADMIN_USER = os.environ.get(
     "ADMIN_USER",
     "admin"

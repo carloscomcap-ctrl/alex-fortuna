@@ -12,6 +12,20 @@
 </head>
 
 <body>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const fecha = document.getElementById("fecha");
+
+        if (fecha && !fecha.value) {
+            const hoy = new Date();
+            const año = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoy.getDate()).padStart(2, "0");
+
+            fecha.value = `${año}-${mes}-${dia}`;
+        }
+    });
+</script>
 
 <div class="top">
 

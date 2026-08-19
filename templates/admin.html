@@ -2,30 +2,24 @@
 <html lang="es">
 
 <head>
+
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
 
     <title>Panel Administrador - Alex Fortuna</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
 </head>
 
 <body>
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const fecha = document.getElementById("fecha");
-
-        if (fecha && !fecha.value) {
-            const hoy = new Date();
-            const año = hoy.getFullYear();
-            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
-            const dia = String(hoy.getDate()).padStart(2, "0");
-
-            fecha.value = `${año}-${mes}-${dia}`;
-        }
-    });
-</script>
 
 <div class="top">
 
@@ -55,126 +49,286 @@
 
 <div class="admin-container">
 
+
+    <!-- ==========================================
+         ENCABEZADO
+         ========================================== -->
+
     <div class="admin-header">
 
         <div>
+
             <h1>Panel de Alex Fortuna</h1>
-            <p>Administración de ventas y números</p>
+
+            <p>
+                Administración de ventas y números
+            </p>
+
         </div>
 
-        <a href="{{ url_for('logout') }}" class="btn-logout">
+
+        <a
+            href="{{ url_for('logout') }}"
+            class="btn-logout"
+        >
             Cerrar sesión
         </a>
 
     </div>
 
 
-    <!-- REGISTRAR VENTA -->
+    <!-- ==========================================
+         REGISTRAR VENTA
+         ========================================== -->
 
     <section class="admin-card">
 
         <h2>➕ Registrar venta</h2>
 
-        <form method="POST" action="{{ url_for('admin') }}">
+        <form
+            method="POST"
+            action="{{ url_for('admin') }}"
+        >
 
             <div class="form-grid">
 
+
+                <!-- TELÉFONO -->
+
                 <input
-                    type="text"
+                    type="tel"
                     name="telefono"
-                    placeholder="Teléfono"
+                    placeholder="📱 Teléfono"
+                    inputmode="tel"
                     required
                 >
+
+
+                <!-- NOMBRE -->
 
                 <input
                     type="text"
                     name="nombre"
-                    placeholder="Nombre"
+                    placeholder="👤 Nombre del cliente"
                     required
                 >
+
+
+                <!-- NÚMERO -->
 
                 <input
                     type="text"
                     name="numero"
-                    placeholder="Número"
+                    placeholder="🎟️ Número"
+                    inputmode="numeric"
                     required
                 >
 
-                <select name="loteria" required>
 
-    <option value="">🎰 Selecciona el sorteo</option>
+                <!-- LOTERÍA -->
 
-    <optgroup label="🌞 Dorado">
-        <option value="Dorado Mañana">Dorado Mañana</option>
-        <option value="Dorado Tarde">Dorado Tarde</option>
-        <option value="Dorado Noche">Dorado Noche</option>
-    </optgroup>
+                <select
+                    name="loteria"
+                    required
+                >
 
-    <optgroup label="🍀 Paisita">
-        <option value="Paisita Día">Paisita Día</option>
-        <option value="Paisita Noche">Paisita Noche</option>
-    </optgroup>
+                    <option value="" selected disabled>
+                        🎰 Seleccione lotería / sorteo
+                    </option>
 
-    <optgroup label="🎯 Chontico">
-        <option value="Chontico Día">Chontico Día</option>
-        <option value="Chontico Noche">Chontico Noche</option>
-    </optgroup>
 
-    <optgroup label="🌴 Sinuano">
-        <option value="Sinuano Día">Sinuano Día</option>
-        <option value="Sinuano Noche">Sinuano Noche</option>
-    </optgroup>
+                    <optgroup label="🎟️ LOTERÍAS">
 
-    <optgroup label="🏝️ Caribeña">
-        <option value="Caribeña Día">Caribeña Día</option>
-        <option value="Caribeña Noche">Caribeña Noche</option>
-    </optgroup>
+                        <option value="Lotería de Cundinamarca">
+                            Lotería de Cundinamarca
+                        </option>
 
-    <optgroup label="☕ Cafeterito">
-        <option value="Cafeterito Día">Cafeterito Día</option>
-        <option value="Cafeterito Noche">Cafeterito Noche</option>
-    </optgroup>
+                        <option value="Lotería del Tolima">
+                            Lotería del Tolima
+                        </option>
 
-    <optgroup label="⭐ Otros">
-        <option value="Fantástica">Fantástica</option>
-        <option value="Motilón">Motilón</option>
-        <option value="Pijao">Pijao</option>
-        <option value="Samán">Samán</option>
-        <option value="Astro Sol">Astro Sol</option>
-        <option value="Astro Luna">Astro Luna</option>
-        <option value="Antioqueñita Día">Antioqueñita Día</option>
-        <option value="Antioqueñita Noche">Antioqueñita Noche</option>
-    </optgroup>
+                        <option value="Lotería de la Cruz Roja">
+                            Lotería de la Cruz Roja
+                        </option>
 
-</select>
+                        <option value="Lotería del Huila">
+                            Lotería del Huila
+                        </option>
 
- <input
-    type="date"
-    name="fecha"
-    required
->  <input
+                        <option value="Lotería de Manizales">
+                            Lotería de Manizales
+                        </option>
+
+                        <option value="Lotería del Valle">
+                            Lotería del Valle
+                        </option>
+
+                        <option value="Lotería del Meta">
+                            Lotería del Meta
+                        </option>
+
+                        <option value="Lotería de Bogotá">
+                            Lotería de Bogotá
+                        </option>
+
+                        <option value="Lotería de Medellín">
+                            Lotería de Medellín
+                        </option>
+
+                        <option value="Lotería de Santander">
+                            Lotería de Santander
+                        </option>
+
+                        <option value="Lotería de Risaralda">
+                            Lotería de Risaralda
+                        </option>
+
+                        <option value="Lotería de Boyacá">
+                            Lotería de Boyacá
+                        </option>
+
+                        <option value="Lotería del Cauca">
+                            Lotería del Cauca
+                        </option>
+
+                    </optgroup>
+
+
+                    <optgroup label="🎲 CHANCES Y SORTEOS">
+
+                        <option value="Paisita Día">
+                            Paisita Día
+                        </option>
+
+                        <option value="Paisita Noche">
+                            Paisita Noche
+                        </option>
+
+                        <option value="Chontico Día">
+                            Chontico Día
+                        </option>
+
+                        <option value="Chontico Noche">
+                            Chontico Noche
+                        </option>
+
+                        <option value="Cafeterito">
+                            Cafeterito
+                        </option>
+
+                        <option value="Pijao">
+                            Pijao
+                        </option>
+
+                        <option value="Sinuano Día">
+                            Sinuano Día
+                        </option>
+
+                        <option value="Sinuano Noche">
+                            Sinuano Noche
+                        </option>
+
+                        <option value="Caribeña Día">
+                            Caribeña Día
+                        </option>
+
+                        <option value="Caribeña Noche">
+                            Caribeña Noche
+                        </option>
+
+                        <option value="Fantástica Día">
+                            Fantástica Día
+                        </option>
+
+                        <option value="Fantástica Noche">
+                            Fantástica Noche
+                        </option>
+
+                        <option value="El Dorado Mañana">
+                            El Dorado Mañana
+                        </option>
+
+                        <option value="El Dorado Tarde">
+                            El Dorado Tarde
+                        </option>
+
+                        <option value="El Dorado Noche">
+                            El Dorado Noche
+                        </option>
+
+                        <option value="Astro Sol">
+                            Astro Sol
+                        </option>
+
+                        <option value="Astro Luna">
+                            Astro Luna
+                        </option>
+
+                    </optgroup>
+
+
+                    <optgroup label="⚠️ NO DISPONIBLE">
+
+                        <option
+                            value="Lotería del Quindío"
+                            disabled
+                        >
+                            Lotería del Quindío — Suspendida
+                        </option>
+
+                    </optgroup>
+
+                </select>
+
+
+                <!-- FECHA -->
+
+                <input
+                    type="date"
+                    name="fecha"
+                    required
+                >
+
+
+                <!-- VALOR -->
+
+                <input
                     type="number"
                     name="valor"
-                    placeholder="Valor"
+                    placeholder="💰 Valor"
                     min="0"
+                    step="100"
                     required
                 >
 
-                <select name="estado">
+
+                <!-- ESTADO -->
+
+                <select
+                    name="estado"
+                    required
+                >
 
                     <option value="PENDIENTE">
-                        PENDIENTE
+                        🟡 PENDIENTE
                     </option>
 
                     <option value="PAGADO">
-                        PAGADO
+                        🟢 PAGADO
                     </option>
 
                 </select>
 
-                <button type="submit">
-                    GUARDAR
+
+                <!-- GUARDAR -->
+
+                <button
+                    type="submit"
+                    class="btn-save"
+                >
+                    💾 GUARDAR VENTA
                 </button>
+
 
             </div>
 
@@ -183,21 +337,28 @@
     </section>
 
 
-    <!-- EXCEL -->
+    <!-- ==========================================
+         EXCEL
+         ========================================== -->
 
     <section class="admin-card">
 
-        <h2>📊 Excel</h2>
+        <h2>📊 Gestión de Excel</h2>
 
         <p>
-            Columnas:
-            telefono, nombre, numero, loteria, fecha, valor, estado
+            Columnas requeridas:
+            <strong>
+                telefono, nombre, numero, loteria,
+                fecha, valor, estado
+            </strong>
         </p>
+
 
         <form
             method="POST"
             action="{{ url_for('importar') }}"
             enctype="multipart/form-data"
+            class="excel-form"
         >
 
             <input
@@ -207,47 +368,65 @@
                 required
             >
 
-            <button type="submit">
-                IMPORTAR EXCEL
+            <button
+                type="submit"
+                class="btn-excel"
+            >
+                📤 IMPORTAR EXCEL
             </button>
 
         </form>
 
+
         <br>
 
-        <a href="{{ url_for('exportar') }}">
-            📥 Descargar Excel
+
+        <a
+            href="{{ url_for('exportar') }}"
+            class="btn-download"
+        >
+            📥 DESCARGAR EXCEL
         </a>
 
     </section>
 
 
-    <!-- VENTAS -->
+    <!-- ==========================================
+         VENTAS
+         ========================================== -->
 
     <section class="admin-card">
 
         <h2>
-            📋 Ventas: {{ ventas|length }}
+            📋 Ventas registradas:
+            {{ ventas|length }}
         </h2>
 
 
         {% if ventas %}
 
-        <div class="tabla-container">
+        <div class="table-container">
 
-            <table>
+            <table class="ventas-table">
 
                 <thead>
 
                     <tr>
 
                         <th>Teléfono</th>
+
                         <th>Nombre</th>
+
                         <th>Número</th>
-                        <th>Lotería</th>
+
+                        <th>Lotería / Sorteo</th>
+
                         <th>Fecha</th>
+
                         <th>Valor</th>
+
                         <th>Estado</th>
+
                         <th>Acciones</th>
 
                     </tr>
@@ -261,31 +440,44 @@
 
                     <tr>
 
+
                         <td>
                             {{ venta.telefono }}
                         </td>
+
 
                         <td>
                             {{ venta.nombre }}
                         </td>
 
+
                         <td>
+
                             <strong>
                                 {{ venta.numero }}
                             </strong>
+
                         </td>
+
 
                         <td>
                             {{ venta.loteria }}
                         </td>
 
+
                         <td>
                             {{ venta.fecha }}
                         </td>
 
+
                         <td>
-                            ${{ "{:,.0f}".format(venta.valor).replace(",", ".") }}
+
+                            ${{ "{:,.0f}".format(
+                                venta.valor
+                            ).replace(",", ".") }}
+
                         </td>
+
 
                         <td>
 
@@ -305,39 +497,73 @@
 
                         </td>
 
+
                         <td>
 
-                            <form
-                                method="POST"
-                                action="{{ url_for('cambiar_estado', id=venta.id) }}"
-                                style="display:inline;"
-                            >
-
-                                <button type="submit">
-                                    {% if venta.estado == "PAGADO" %}
-                                        PENDIENTE
-                                    {% else %}
-                                        PAGAR
-                                    {% endif %}
-                                </button>
-
-                            </form>
+                            <div class="acciones">
 
 
-                            <form
-                                method="POST"
-                                action="{{ url_for('eliminar', id=venta.id) }}"
-                                style="display:inline;"
-                                onsubmit="return confirm('¿Seguro que deseas eliminar esta venta?');"
-                            >
+                                <!-- CAMBIAR ESTADO -->
 
-                                <button type="submit">
-                                    ❌
-                                </button>
+                                <form
+                                    method="POST"
+                                    action="{{
+                                        url_for(
+                                            'cambiar_estado',
+                                            id=venta.id
+                                        )
+                                    }}"
+                                >
 
-                            </form>
+                                    <button
+                                        type="submit"
+                                        class="btn-estado"
+                                    >
+
+                                        {% if venta.estado == "PAGADO" %}
+
+                                            PENDIENTE
+
+                                        {% else %}
+
+                                            PAGAR
+
+                                        {% endif %}
+
+                                    </button>
+
+                                </form>
+
+
+                                <!-- ELIMINAR -->
+
+                                <form
+                                    method="POST"
+                                    action="{{
+                                        url_for(
+                                            'eliminar',
+                                            id=venta.id
+                                        )
+                                    }}"
+                                    onsubmit="return confirm(
+                                        '¿Seguro que deseas eliminar esta venta?'
+                                    );"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="btn-delete"
+                                    >
+                                        ❌
+                                    </button>
+
+                                </form>
+
+
+                            </div>
 
                         </td>
+
 
                     </tr>
 
@@ -349,19 +575,38 @@
 
         </div>
 
+
         {% else %}
 
-            <p>
-                No hay ventas registradas.
-            </p>
+            <div class="empty">
+
+                📭
+
+                <p>
+                    No hay ventas registradas.
+                </p>
+
+            </div>
 
         {% endif %}
 
     </section>
 
+
 </div>
 
 
+<!-- ==========================================
+     PIE DE PÁGINA
+     ========================================== -->
+
 <footer>
+
     Alex Fortuna · Sistema de consulta de números
+
 </footer>
+
+
+</body>
+
+</html>

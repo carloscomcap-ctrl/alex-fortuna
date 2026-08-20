@@ -1,6 +1,7 @@
 import os
 import io
 import re
+from datetime import datetime
 
 from flask import (
     Flask,
@@ -70,6 +71,54 @@ ADMIN_PASSWORD_HASH = generate_password_hash(
 
 
 # =========================================================
+# MODELO DE SORTEO
+# =========================================================
+
+class Sorteo(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    nombre = db.Column(
+        db.String(120),
+        nullable=False
+    )
+
+    loteria = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    fecha = db.Column(
+        db.String(30),
+        nullable=False
+    )
+
+    horario = db.Column(
+        db.String(30),
+        nullable=False
+    )
+
+    valor = db.Column(
+        db.Integer,
+        default=0
+    )
+
+    estado = db.Column(
+        db.String(20),
+        default="ACTIVO"
+    )
+
+    ventas = db.relationship(
+        "Venta",
+        backref="sorteo",
+        lazy=True
+    )
+
+
+# =========================================================
 # MODELO DE VENTA
 # =========================================================
 
@@ -116,13 +165,52 @@ class Venta(db.Model):
         default="PENDIENTE"
     )
 
+    # Nuevo: relaciona la venta con un sorteo.
+    # Es nullable para conservar las ventas antiguas.
+    sorteo_id = db.Column(
+        db.Integer,
+        db.ForeignKey("sorteo.id"),
+        nullable=True,
+        index=True
+    )
+
 
 # =========================================================
-# CREAR TABLAS
+# CREAR TABLAS Y COMPATIBILIDAD CON BASE EXISTENTE
 # =========================================================
 
 with app.app_context():
+
     db.create_all()
+
+    # Si la base ya existía antes de agregar Sorteos,
+    # agregamos sorteo_id a Venta sin borrar los datos.
+    try:
+        inspector = db.inspect(db.engine)
+        columnas = [
+            c["name"]
+            for c in inspector.get_columns("venta")
+        ]
+
+        if "sorteo_id" not in columnas:
+            with db.engine.begin() as connection:
+
+                if db.engine.dialect.name == "postgresql":
+                    connection.exec_driver_sql(
+                        'ALTER TABLE venta ADD COLUMN sorteo_id INTEGER'
+                    )
+                    connection.exec_driver_sql(
+                        'CREATE INDEX IF NOT EXISTS ix_venta_sorteo_id ON venta (sorteo_id)'
+                    )
+                else:
+                    connection.exec_driver_sql(
+                        'ALTER TABLE venta ADD COLUMN sorteo_id INTEGER'
+                    )
+
+    except Exception:
+        # Si la columna ya existe o la base no requiere cambios,
+        # la aplicación continúa normalmente.
+        pass
 
 
 # =========================================================
@@ -305,6 +393,11 @@ def admin():
                 "PENDIENTE"
             ).upper()
 
+            sorteo_id = request.form.get(
+                "sorteo_id",
+                ""
+            ).strip()
+
 
             # =================================================
             # COMPROBAR DATOS OBLIGATORIOS
@@ -327,7 +420,7 @@ def admin():
 
             if not loteria:
                 raise ValueError(
-                    "Debes seleccionar una lotería o sorteo."
+                    "Debes seleccionar una lotería."
                 )
 
             if not fecha:
@@ -337,17 +430,51 @@ def admin():
 
 
             # =================================================
+            # VALIDAR SORTEO
+            # =================================================
+
+            sorteo = None
+
+            if sorteo_id:
+
+                sorteo = db.session.get(
+                    Sorteo,
+                    int(sorteo_id)
+                )
+
+                if not sorteo:
+                    raise ValueError(
+                        "El sorteo seleccionado no existe."
+                    )
+
+                if sorteo.estado != "ACTIVO":
+                    raise ValueError(
+                        "El sorteo seleccionado está cerrado."
+                    )
+
+
+            # =================================================
             # COMPROBAR DUPLICADO
             # =================================================
 
-            existente = (
-                Venta.query
-                .filter_by(
-                    numero=numero,
-                    loteria=loteria
-                )
-                .first()
+            consulta = Venta.query.filter_by(
+                numero=numero,
+                loteria=loteria
             )
+
+            if sorteo:
+                consulta = consulta.filter_by(
+                    sorteo_id=sorteo.id
+                )
+
+            else:
+                # Las ventas antiguas sin sorteo mantienen
+                # la regla anterior de número + lotería.
+                consulta = consulta.filter_by(
+                    sorteo_id=None
+                )
+
+            existente = consulta.first()
 
 
             if existente:
@@ -355,7 +482,7 @@ def admin():
                 flash(
                     f"⚠️ El número {numero} "
                     f"ya está registrado para "
-                    f"{loteria}.",
+                    f"{loteria} en este sorteo.",
                     "error"
                 )
 
@@ -375,7 +502,13 @@ def admin():
 
                     valor=valor,
 
-                    estado=estado
+                    estado=estado,
+
+                    sorteo_id=(
+                        sorteo.id
+                        if sorteo
+                        else None
+                    )
                 )
 
                 db.session.add(
@@ -409,14 +542,215 @@ def admin():
         .all()
     )
 
+    sorteos = (
+        Sorteo.query
+        .order_by(
+            Sorteo.id.desc()
+        )
+        .all()
+    )
+
+    sorteos_activos = [
+        s for s in sorteos
+        if s.estado == "ACTIVO"
+    ]
+
     return render_template(
         "admin.html",
-        ventas=ventas
+        ventas=ventas,
+        sorteos=sorteos,
+        sorteos_activos=sorteos_activos
     )
 
 
 # =========================================================
-# CAMBIAR ESTADO
+# CREAR SORTEO
+# =========================================================
+
+@app.post("/admin/sorteos/crear")
+def crear_sorteo():
+
+    if not required_admin():
+
+        return redirect(
+            url_for("login")
+        )
+
+    try:
+
+        nombre = request.form.get(
+            "nombre",
+            ""
+        ).strip()
+
+        loteria = request.form.get(
+            "loteria",
+            ""
+        ).strip()
+
+        fecha = request.form.get(
+            "fecha",
+            ""
+        ).strip()
+
+        horario = request.form.get(
+            "horario",
+            ""
+        ).strip()
+
+        valor = int(
+            request.form.get(
+                "valor"
+            ) or 0
+        )
+
+        if not nombre:
+            raise ValueError(
+                "Debes ingresar el nombre del sorteo."
+            )
+
+        if not loteria:
+            raise ValueError(
+                "Debes seleccionar una lotería."
+            )
+
+        if not fecha:
+            raise ValueError(
+                "Debes seleccionar la fecha."
+            )
+
+        if not horario:
+            raise ValueError(
+                "Debes seleccionar el horario."
+            )
+
+        sorteo = Sorteo(
+            nombre=nombre,
+            loteria=loteria,
+            fecha=fecha,
+            horario=horario,
+            valor=valor,
+            estado="ACTIVO"
+        )
+
+        db.session.add(
+            sorteo
+        )
+
+        db.session.commit()
+
+        flash(
+            "🎰 Sorteo creado correctamente.",
+            "ok"
+        )
+
+    except Exception as error:
+
+        db.session.rollback()
+
+        flash(
+            "No se pudo crear el sorteo: "
+            + str(error),
+            "error"
+        )
+
+    return redirect(
+        url_for("admin")
+    )
+
+
+# =========================================================
+# CERRAR / ABRIR SORTEO
+# =========================================================
+
+@app.post("/admin/sorteos/estado/<int:id>")
+def cambiar_estado_sorteo(id):
+
+    if not required_admin():
+
+        return redirect(
+            url_for("login")
+        )
+
+    sorteo = db.session.get(
+        Sorteo,
+        id
+    )
+
+    if sorteo:
+
+        if sorteo.estado == "ACTIVO":
+            sorteo.estado = "CERRADO"
+            mensaje = "🔒 Sorteo cerrado."
+        else:
+            sorteo.estado = "ACTIVO"
+            mensaje = "🟢 Sorteo activado."
+
+        db.session.commit()
+
+        flash(
+            mensaje,
+            "ok"
+        )
+
+    return redirect(
+        url_for("admin")
+    )
+
+
+# =========================================================
+# ELIMINAR SORTEO
+# =========================================================
+
+@app.post("/admin/sorteos/eliminar/<int:id>")
+def eliminar_sorteo(id):
+
+    if not required_admin():
+
+        return redirect(
+            url_for("login")
+        )
+
+    sorteo = db.session.get(
+        Sorteo,
+        id
+    )
+
+    if sorteo:
+
+        ventas_asociadas = Venta.query.filter_by(
+            sorteo_id=sorteo.id
+        ).count()
+
+        if ventas_asociadas > 0:
+
+            flash(
+                "⚠️ No puedes eliminar un sorteo que tiene ventas asociadas.",
+                "error"
+            )
+
+            return redirect(
+                url_for("admin")
+            )
+
+        db.session.delete(
+            sorteo
+        )
+
+        db.session.commit()
+
+        flash(
+            "Sorteo eliminado correctamente.",
+            "ok"
+        )
+
+    return redirect(
+        url_for("admin")
+    )
+
+
+# =========================================================
+# CAMBIAR ESTADO DE VENTA
 # =========================================================
 
 @app.post(
@@ -438,11 +772,8 @@ def cambiar_estado(id):
     if venta:
 
         if venta.estado == "PAGADO":
-
             venta.estado = "PENDIENTE"
-
         else:
-
             venta.estado = "PAGADO"
 
         db.session.commit()
@@ -519,11 +850,6 @@ def importar():
             archivo
         )
 
-
-        # =================================================
-        # COLUMNAS NECESARIAS
-        # =================================================
-
         required = [
             "telefono",
             "nombre",
@@ -547,14 +873,8 @@ def importar():
                 + ", ".join(missing)
             )
 
-
         count = 0
         duplicados = 0
-
-
-        # =================================================
-        # PROCESAR FILAS
-        # =================================================
 
         for _, row in df.iterrows():
 
@@ -569,11 +889,6 @@ def importar():
                 row["loteria"]
             ).strip()
 
-
-            # =============================================
-            # EVITAR DUPLICADOS
-            # =============================================
-
             existente = (
                 Venta.query
                 .filter_by(
@@ -586,9 +901,7 @@ def importar():
             if existente:
 
                 duplicados += 1
-
                 continue
-
 
             venta = Venta(
 
@@ -631,20 +944,13 @@ def importar():
 
             count += 1
 
-
         db.session.commit()
-
-
-        # =================================================
-        # MENSAJE DE RESULTADO
-        # =================================================
 
         if duplicados > 0:
 
             flash(
                 f"✅ Se importaron {count} ventas. "
-                f"⚠️ Se omitieron {duplicados} "
-                f"duplicadas.",
+                f"⚠️ Se omitieron {duplicados} duplicadas.",
                 "ok"
             )
 
@@ -655,7 +961,6 @@ def importar():
                 "ok"
             )
 
-
     except Exception as error:
 
         db.session.rollback()
@@ -665,7 +970,6 @@ def importar():
             + str(error),
             "error"
         )
-
 
     return redirect(
         url_for("admin")
@@ -711,16 +1015,20 @@ def exportar():
 
             "valor": venta.valor,
 
-            "estado": venta.estado
-        })
+            "estado": venta.estado,
 
+            "sorteo": (
+                venta.sorteo.nombre
+                if venta.sorteo
+                else ""
+            )
+        })
 
     df = pd.DataFrame(
         datos
     )
 
     output = io.BytesIO()
-
 
     with pd.ExcelWriter(
         output,
@@ -733,9 +1041,7 @@ def exportar():
             sheet_name="Ventas"
         )
 
-
     output.seek(0)
-
 
     return send_file(
 

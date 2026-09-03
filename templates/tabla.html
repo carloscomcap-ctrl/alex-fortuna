@@ -1,0 +1,183 @@
+﻿{% extends "base.html" %}
+
+{% block title %}
+{{ sorteo.nombre }} - Tabla 00-99 | Dinámicas Alex 27
+{% endblock %}
+
+{% block body %}
+
+<main class="tabla-page-main">
+
+    <!-- CABECERA DEL SORTEO -->
+    <section class="sorteo-hero-card">
+
+        <div class="sorteo-hero-top">
+            <span class="badge-sorteo-estado {{ sorteo.estado|lower }}">
+                {% if sorteo.estado == "ACTIVO" %}🟢 SORTEO ACTIVO{% else %}🔒 SORTEO CERRADO{% endif %}
+            </span>
+            <span class="badge-sorteo-valor">
+                🎟️ Valor: ${{ "{:,.0f}".format(sorteo.valor).replace(",", ".") }}
+            </span>
+        </div>
+
+        <h1 class="sorteo-hero-titulo">
+            🎟️ {{ sorteo.nombre }}
+        </h1>
+
+        <div class="sorteo-hero-detalles">
+            <span>🎰 <b>Lotería:</b> {{ sorteo.loteria }}</span>
+            <span>📅 <b>Fecha:</b> {{ sorteo.fecha }}</span>
+            <span>⏰ <b>Jornada:</b> {{ sorteo.horario }}</span>
+        </div>
+
+        <!-- TARJETAS DE PREMIOS -->
+        <div class="tabla-premios-grid">
+            <div class="premio-card mayor">
+                <span class="premio-medalla">🥇</span>
+                <div class="premio-info">
+                    <small>PREMIO MAYOR (Últimas 2)</small>
+                    <strong>{{ sorteo.premio_mayor }}</strong>
+                </div>
+            </div>
+            <div class="premio-card">
+                <span class="premio-medalla">🥈</span>
+                <div class="premio-info">
+                    <small>PREMIO ANTICIPADO (Primeras 2)</small>
+                    <strong>{{ sorteo.premio_primeras }}</strong>
+                </div>
+            </div>
+            <div class="premio-card">
+                <span class="premio-medalla">🥉</span>
+                <div class="premio-info">
+                    <small>PREMIO SECUNDARIO (Del Medio)</small>
+                    <strong>{{ sorteo.premio_medio }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE ESTADÍSTICAS Y PROGRESO -->
+        <div class="sorteo-stats-box">
+            <div class="stats-contadores">
+                <span>⚪ <b>{{ libres }}</b> Disponibles</span>
+                <span>🟡 <b>{{ apartados }}</b> Apartados</span>
+                <span>🟢 <b>{{ pagados }}</b> Pagados</span>
+            </div>
+            <div class="progreso-barra-bg">
+                <div class="progreso-barra-fill" style="width: {{ (pagados + apartados) }}%;"></div>
+            </div>
+            <small class="progreso-texto">{{ (pagados + apartados) }} de 100 números vendidos ({{ (pagados + apartados) }}%)</small>
+        </div>
+
+    </section>
+
+
+    <!-- TABLERO DE NÚMEROS (00 AL 99) -->
+    <section class="admin-card tablero-card">
+
+        <div class="tablero-header">
+            <div>
+                <h2>🔢 Tablero Oficial (00 al 99)</h2>
+                <p class="hint">Toca cualquier número disponible (⚪) para apartarlo inmediatamente por WhatsApp.</p>
+            </div>
+            <div class="tablero-filtros">
+                <button type="button" class="btn-filtro-tablero activo" id="filtro-todos-btn">Todos (100)</button>
+                <button type="button" class="btn-filtro-tablero" id="filtro-libres-btn">Solo Disponibles ({{ libres }})</button>
+            </div>
+        </div>
+
+        <!-- LEYENDA -->
+        <div class="tablero-leyenda">
+            <span class="item-leyenda"><span class="cuadro libre"></span> Libre / Disponible</span>
+            <span class="item-leyenda"><span class="cuadro pendiente"></span> Apartado</span>
+            <span class="item-leyenda"><span class="cuadro pagado"></span> Pagado</span>
+        </div>
+
+        <!-- CUADRÍCULA 10x10 DE NÚMEROS -->
+        <div class="cuadricula-100" id="cuadricula-numeros">
+
+            {% for i in range(100) %}
+                {% set num_str = "%02d" % i %}
+                {% set casilla = mapa_numeros[num_str] %}
+
+                {% if casilla.estado == "LIBRE" %}
+                    <a href="https://api.whatsapp.com/send?text=¡Hola%20*DINÁMICAS%20ALEX%2027*!%20🍀%20Deseo%20apartar%20el%20número%20*%23{{ num_str }}*%20para%20el%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }}%20-%20{{ sorteo.fecha }}).%20¿Sigue%20disponible?"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="casilla-num libre"
+                       title="Apartar número #{{ num_str }}">
+                        <span class="num-valor">{{ num_str }}</span>
+                        <span class="num-etiqueta">LIBRE</span>
+                    </a>
+                {% elif casilla.estado == "PAGADO" %}
+                    <div class="casilla-num pagado" title="Pagado por {{ casilla.cliente }}">
+                        <span class="num-valor">{{ num_str }}</span>
+                        <span class="num-etiqueta cliente">{{ casilla.cliente }}</span>
+                    </div>
+                {% else %}
+                    <div class="casilla-num pendiente" title="Apartado por {{ casilla.cliente }}">
+                        <span class="num-valor">{{ num_str }}</span>
+                        <span class="num-etiqueta cliente">{{ casilla.cliente }}</span>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ACCIONES INFERIORES -->
+    <section class="acciones-inferiores-tabla">
+        <a href="https://api.whatsapp.com/send?text=🔥%20*¡TABLA%20OFICIAL%20DE%20NÚMEROS%20-%20DINÁMICAS%20ALEX%2027!*%20🍀%0A🎟️%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }})%0A💰%20Valor%20Boleta:%20${{ "{:,.0f}".format(sorteo.valor).replace(",", ".") }}%0A🏆%20Premio%20Mayor:%20{{ sorteo.premio_mayor }}%0A👉%20*Mira%20los%20números%20disponibles%20aquí:*%20" 
+           id="btn-compartir-tabla"
+           target="_blank" 
+           class="btn-compartir-wa" 
+           style="max-width: 400px; margin: 0 auto 15px;">
+            📲 Compartir esta tabla por WhatsApp
+        </a>
+
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="{{ url_for('home') }}" class="btn-volver" style="margin: 0;">
+                🏠 Ver más sorteos
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<script>
+// Ajustar dinámicamente URL al compartir
+const btnCompartir = document.getElementById("btn-compartir-tabla");
+if (btnCompartir) {
+    const currentUrl = encodeURIComponent(window.location.href);
+    btnCompartir.href += currentUrl;
+}
+
+// Filtro de Solo Disponibles
+const btnTodos = document.getElementById("filtro-todos-btn");
+const btnLibres = document.getElementById("filtro-libres-btn");
+const casillas = document.querySelectorAll(".casilla-num");
+
+if (btnTodos && btnLibres) {
+    btnTodos.addEventListener("click", () => {
+        btnTodos.classList.add("activo");
+        btnLibres.classList.remove("activo");
+        casillas.forEach(c => c.style.display = "");
+    });
+
+    btnLibres.addEventListener("click", () => {
+        btnLibres.classList.add("activo");
+        btnTodos.classList.remove("activo");
+        casillas.forEach(c => {
+            if (!c.classList.contains("libre")) {
+                c.style.display = "none";
+            } else {
+                c.style.display = "";
+            }
+        });
+    });
+}
+</script>
+
+{% endblock %}

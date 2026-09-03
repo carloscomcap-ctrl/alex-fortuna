@@ -1990,4 +1990,511 @@ footer {
 }
 
 
+/* =========================================================
+   SORTEOS Y TABLEROS 00 AL 99
+   ========================================================= */
+
+/* BADGES ESTADO */
+.badge-sorteo-estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-sorteo-estado.activo {
+    background: rgba(34, 197, 94, 0.18);
+    color: #86efac;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.badge-sorteo-estado.cerrado {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* CARDS DE SORTEOS EN PORTADA */
+.sorteos-activos-section {
+    margin: 40px 0;
+}
+
+.seccion-titulo-box {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.seccion-titulo-box h2 {
+    color: var(--dorado);
+    margin-bottom: 6px;
+}
+
+.seccion-titulo-box p {
+    color: var(--gris);
+    margin: 0;
+}
+
+.sorteos-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.sorteo-publico-card {
+    background: linear-gradient(145deg, #111b2b, #080e18);
+    border: 1px solid #23344d;
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s;
+}
+
+.sorteo-publico-card:hover {
+    border-color: var(--dorado);
+    transform: translateY(-3px);
+}
+
+.sorteo-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sorteo-card-valor {
+    color: var(--dorado);
+    font-weight: 900;
+    font-size: 16px;
+}
+
+.sorteo-publico-card h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.sorteo-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--gris);
+}
+
+.sorteo-card-premios {
+    background: #070d17;
+    border: 1px solid #1c2b3f;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #e2e8f0;
+}
+
+.btn-ver-tabla {
+    background: linear-gradient(135deg, #ffe07a, var(--dorado), var(--dorado-2));
+    color: #0b111a;
+    text-decoration: none;
+    font-weight: 900;
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin-top: auto;
+}
+
+.btn-ver-tabla:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 197, 66, 0.35);
+}
+
+/* PÁGINA TABLA 00-99 */
+.tabla-page-main {
+    width: 95%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 0;
+}
+
+.sorteo-hero-card {
+    background: linear-gradient(145deg, #111e30, #080e18);
+    border: 1px solid #233852;
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 25px;
+    text-align: center;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
+.sorteo-hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.badge-sorteo-valor {
+    color: var(--dorado);
+    font-weight: 900;
+    font-size: 17px;
+}
+
+.sorteo-hero-titulo {
+    font-size: clamp(24px, 5vw, 36px);
+    color: #ffffff;
+    margin: 0 0 12px;
+}
+
+.sorteo-hero-detalles {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    color: var(--gris);
+    font-size: 14px;
+    margin-bottom: 22px;
+}
+
+.tabla-premios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.premio-card {
+    background: #080f1a;
+    border: 1px solid #1f3047;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+}
+
+.premio-card.mayor {
+    border-color: rgba(245, 197, 66, 0.4);
+    background: linear-gradient(145deg, #132238, #0a1322);
+}
+
+.premio-medalla {
+    font-size: 32px;
+}
+
+.premio-info small {
+    display: block;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--dorado);
+}
+
+.premio-info strong {
+    font-size: 18px;
+    color: #ffffff;
+}
+
+/* BARRA DE PROGRESO */
+.sorteo-stats-box {
+    background: #060b13;
+    border: 1px solid #1c2c40;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.stats-contadores {
+    display: flex;
+    justify-content: space-around;
+    font-size: 14px;
+    color: var(--gris);
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.progreso-barra-bg {
+    background: #111a27;
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progreso-barra-fill {
+    background: linear-gradient(90deg, var(--dorado-2), var(--dorado), #86efac);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.progreso-texto {
+    color: #7989a0;
+    font-size: 12px;
+}
+
+/* TABLERO 10X10 */
+.tablero-card {
+    padding: 24px;
+}
+
+.tablero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.tablero-header h2 {
+    margin: 0;
+    color: var(--dorado);
+}
+
+.tablero-filtros {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-filtro-tablero {
+    background: #111a28;
+    color: #aeb8c7;
+    border: 1px solid #24354c;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.btn-filtro-tablero.activo {
+    background: linear-gradient(135deg, #ffe07a, var(--dorado));
+    color: #0b111a;
+    border-color: var(--dorado);
+}
+
+.tablero-leyenda {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 18px;
+    font-size: 12px;
+    color: #94a3b8;
+    flex-wrap: wrap;
+}
+
+.item-leyenda {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cuadro {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.cuadro.libre {
+    background: #0d1624;
+    border: 1px solid #2a3d57;
+}
+
+.cuadro.pendiente {
+    background: #f59e0b;
+}
+
+.cuadro.pagado {
+    background: #22c55e;
+}
+
+/* CUADRÍCULA 10X10 */
+.cuadricula-100 {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .cuadricula-100 {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+}
+
+.casilla-num {
+    background: #0a111c;
+    border: 1px solid #1f2f45;
+    border-radius: 10px;
+    padding: 10px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    text-decoration: none;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.casilla-num.libre {
+    cursor: pointer;
+    border-color: rgba(245, 197, 66, 0.22);
+}
+
+.casilla-num.libre:hover {
+    background: #132236;
+    border-color: var(--dorado);
+    transform: scale(1.08);
+    box-shadow: 0 4px 15px rgba(245, 197, 66, 0.25);
+    z-index: 2;
+}
+
+.casilla-num.libre .num-valor {
+    color: #ffffff;
+}
+
+.casilla-num.libre .num-etiqueta {
+    color: var(--dorado);
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.casilla-num.pendiente {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.22), #0f1724);
+    border-color: rgba(245, 158, 11, 0.6);
+}
+
+.casilla-num.pendiente .num-valor {
+    color: #fcd34d;
+}
+
+.casilla-num.pagado {
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.22), #0f1724);
+    border-color: rgba(34, 197, 94, 0.6);
+}
+
+.casilla-num.pagado .num-valor {
+    color: #86efac;
+}
+
+.num-valor {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.num-etiqueta.cliente {
+    font-size: 9px;
+    color: #cbd5e1;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 3px;
+    text-align: center;
+    padding: 0 2px;
+}
+
+/* SORTEOS EN EL ADMIN */
+.sorteos-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+}
+
+.sorteo-admin-card {
+    background: #080e18;
+    border: 1px solid #1f2f45;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sorteo-admin-card.cerrado {
+    opacity: 0.65;
+}
+
+.sorteo-admin-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sorteo-admin-card h4 {
+    margin: 0;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.sorteo-admin-card-meta {
+    font-size: 12px;
+    color: var(--gris);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sorteo-admin-card-premios {
+    font-size: 11px;
+    color: var(--dorado);
+}
+
+.sorteo-admin-card-acciones {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.btn-admin-tabla {
+    background: #111d2e;
+    color: var(--dorado);
+    border: 1px solid rgba(245, 197, 66, 0.3);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 10px;
+    border-radius: 7px;
+    transition: all 0.2s;
+}
+
+.btn-admin-tabla:hover {
+    background: var(--dorado);
+    color: #0b111a;
+}
+
+.btn-admin-estado {
+    background: #182333 !important;
+    color: #cbd5e1 !important;
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+    border-radius: 7px !important;
+}
+
+.btn-admin-eliminar {
+    background: #2b1414 !important;
+    color: #fca5a5 !important;
+    font-size: 11px !important;
+    padding: 6px 9px !important;
+    border-radius: 7px !important;
+}
+
+
+
 

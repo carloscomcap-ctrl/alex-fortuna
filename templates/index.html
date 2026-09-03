@@ -52,6 +52,54 @@ Consulta | Dinámicas Alex 27
     </section>
 
 
+    {% if sorteos_activos %}
+    <!-- =================================================
+         SORTEOS ACTIVOS DE HOY (TABLAS 00-99)
+    ================================================== -->
+    <section class="sorteos-activos-section">
+
+        <div class="seccion-titulo-box">
+            <h2>🔥 DINÁMICAS ACTIVAS DE HOY</h2>
+            <p>Elige tu sorteo favorito, consulta los números disponibles del 00 al 99 y apártalos por WhatsApp.</p>
+        </div>
+
+        <div class="sorteos-cards-grid">
+
+            {% for s in sorteos_activos %}
+            <div class="sorteo-publico-card">
+
+                <div class="sorteo-card-top">
+                    <span class="badge-sorteo-estado activo">🟢 ACTIVO</span>
+                    <span class="sorteo-card-valor">🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}</span>
+                </div>
+
+                <h3>🎟️ {{ s.nombre }}</h3>
+
+                <div class="sorteo-card-info">
+                    <span>🎰 <b>Lotería:</b> {{ s.loteria }}</span>
+                    <span>📅 <b>Fecha:</b> {{ s.fecha }}</span>
+                    <span>⏰ <b>Jornada:</b> {{ s.horario }}</span>
+                </div>
+
+                <div class="sorteo-card-premios">
+                    <div>🥇 <b>Mayor:</b> {{ s.premio_mayor }}</div>
+                    <div>🥈 <b>Primeras:</b> {{ s.premio_primeras }}</div>
+                    <div>🥉 <b>Medio:</b> {{ s.premio_medio }}</div>
+                </div>
+
+                <a href="{{ url_for('ver_tabla', id=s.id) }}" class="btn-ver-tabla">
+                    🔢 Ver Tabla 00-99 y Apartar Números ➔
+                </a>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+    </section>
+    {% endif %}
+
+
     <section class="warning">
 
         <h2>⚠️ IMPORTANTE</h2>

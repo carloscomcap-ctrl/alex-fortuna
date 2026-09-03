@@ -106,6 +106,21 @@ class Sorteo(db.Model):
         default=0
     )
 
+    premio_mayor = db.Column(
+        db.String(50),
+        default="$320.000"
+    )
+
+    premio_primeras = db.Column(
+        db.String(50),
+        default="$50.000"
+    )
+
+    premio_medio = db.Column(
+        db.String(50),
+        default="$50.000"
+    )
+
     estado = db.Column(
         db.String(20),
         default="ACTIVO"
@@ -165,8 +180,7 @@ class Venta(db.Model):
         default="PENDIENTE"
     )
 
-    # Nuevo: relaciona la venta con un sorteo.
-    # Es nullable para conservar las ventas antiguas.
+    # Relaciona la venta con un sorteo.
     sorteo_id = db.Column(
         db.Integer,
         db.ForeignKey("sorteo.id"),
@@ -183,18 +197,15 @@ with app.app_context():
 
     db.create_all()
 
-    # Si la base ya existía antes de agregar Sorteos,
-    # agregamos sorteo_id a Venta sin borrar los datos.
     try:
         inspector = db.inspect(db.engine)
-        columnas = [
+        columnas_venta = [
             c["name"]
             for c in inspector.get_columns("venta")
         ]
 
-        if "sorteo_id" not in columnas:
+        if "sorteo_id" not in columnas_venta:
             with db.engine.begin() as connection:
-
                 if db.engine.dialect.name == "postgresql":
                     connection.exec_driver_sql(
                         'ALTER TABLE venta ADD COLUMN sorteo_id INTEGER'
@@ -207,9 +218,20 @@ with app.app_context():
                         'ALTER TABLE venta ADD COLUMN sorteo_id INTEGER'
                     )
 
+        # Migrar columnas de premios en Sorteo si no existen
+        columnas_sorteo = [
+            c["name"]
+            for c in inspector.get_columns("sorteo")
+        ]
+        with db.engine.begin() as connection:
+            if "premio_mayor" not in columnas_sorteo:
+                connection.exec_driver_sql("ALTER TABLE sorteo ADD COLUMN premio_mayor VARCHAR(50) DEFAULT '$320.000'")
+            if "premio_primeras" not in columnas_sorteo:
+                connection.exec_driver_sql("ALTER TABLE sorteo ADD COLUMN premio_primeras VARCHAR(50) DEFAULT '$50.000'")
+            if "premio_medio" not in columnas_sorteo:
+                connection.exec_driver_sql("ALTER TABLE sorteo ADD COLUMN premio_medio VARCHAR(50) DEFAULT '$50.000'")
+
     except Exception:
-        # Si la columna ya existe o la base no requiere cambios,
-        # la aplicación continúa normalmente.
         pass
 
 
@@ -245,9 +267,79 @@ def required_admin():
 @app.route("/")
 def home():
 
-    return render_template(
-        "index.html"
+    sorteos_activos = (
+        Sorteo.query
+        .filter_by(estado="ACTIVO")
+        .order_by(Sorteo.id.desc())
+        .all()
     )
+
+    return render_template(
+        "index.html",
+        sorteos_activos=sorteos_activos
+    )
+
+
+# =========================================================
+# TABLA VISUAL DE NÚMEROS (00 AL 99)
+# =========================================================
+
+@app.route("/tabla/<int:id>")
+def ver_tabla(id):
+
+    sorteo = db.session.get(Sorteo, id)
+
+    if not sorteo:
+        flash("El sorteo solicitado no existe.", "error")
+        return redirect(url_for("home"))
+
+    # Estructura del 00 al 99
+    mapa_numeros = {}
+    for i in range(100):
+        num_str = f"{i:02d}"
+        mapa_numeros[num_str] = {
+            "numero": num_str,
+            "estado": "LIBRE",
+            "cliente": None,
+            "telefono": None,
+            "venta_id": None
+        }
+
+    libres = 100
+    apartados = 0
+    pagados = 0
+
+    for venta in sorteo.ventas:
+        num_str = str(venta.numero).strip().zfill(2)
+        if num_str in mapa_numeros:
+            estado = (venta.estado or "PENDIENTE").upper()
+            if mapa_numeros[num_str]["estado"] == "LIBRE":
+                libres -= 1
+
+            if estado == "PAGADO":
+                pagados += 1
+            else:
+                apartados += 1
+
+            mapa_numeros[num_str]["estado"] = estado
+            mapa_numeros[num_str]["cliente"] = venta.nombre
+            mapa_numeros[num_str]["telefono"] = venta.telefono
+            mapa_numeros[num_str]["venta_id"] = venta.id
+
+    recaudado = pagados * (sorteo.valor or 0)
+    por_recaudar = apartados * (sorteo.valor or 0)
+
+    return render_template(
+        "tabla.html",
+        sorteo=sorteo,
+        mapa_numeros=mapa_numeros,
+        libres=libres,
+        apartados=apartados,
+        pagados=pagados,
+        recaudado=recaudado,
+        por_recaudar=por_recaudar
+    )
+
 
 
 # =========================================================
@@ -604,6 +696,21 @@ def crear_sorteo():
             ) or 0
         )
 
+        premio_mayor = request.form.get(
+            "premio_mayor",
+            "$320.000"
+        ).strip() or "$320.000"
+
+        premio_primeras = request.form.get(
+            "premio_primeras",
+            "$50.000"
+        ).strip() or "$50.000"
+
+        premio_medio = request.form.get(
+            "premio_medio",
+            "$50.000"
+        ).strip() or "$50.000"
+
         if not nombre:
             raise ValueError(
                 "Debes ingresar el nombre del sorteo."
@@ -630,6 +737,9 @@ def crear_sorteo():
             fecha=fecha,
             horario=horario,
             valor=valor,
+            premio_mayor=premio_mayor,
+            premio_primeras=premio_primeras,
+            premio_medio=premio_medio,
             estado="ACTIVO"
         )
 

@@ -92,6 +92,157 @@
 
 
     <!-- =================================================
+         GESTIÓN DE SORTEOS Y TABLAS 00-99
+    ================================================== -->
+
+    <section class="admin-card">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <div>
+                <h2>🎰 Sorteos Diarios y Tablas del 00 al 99</h2>
+                <p class="hint">Crea dinámicas con nombre propio (ej: <i>Sorteo Mi Fe</i>, <i>Sorteo Mi Fortuna</i>) y gestiona sus tableros de 100 números.</p>
+            </div>
+            <button type="button" class="btn-oro" id="btn-toggle-crear-sorteo">
+                ➕ CREAR NUEVO SORTEO
+            </button>
+        </div>
+
+        <!-- FORMULARIO CREAR SORTEO (EXPANDIBLE) -->
+        <div id="form-crear-sorteo-box" style="display: none; background: #070d17; border: 1px solid #23344d; border-radius: 14px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: var(--dorado); margin-top: 0;">➕ Configurar Nueva Dinámica Diaria</h3>
+            <form method="POST" action="{{ url_for('crear_sorteo') }}">
+                <div class="form-grid">
+                    <div>
+                        <label class="label-campo">Nombre del Sorteo</label>
+                        <input type="text" name="nombre" placeholder="Ej: Sorteo Mi Fe" required>
+                    </div>
+                    <div>
+                        <label class="label-campo">Lotería</label>
+                        <select name="loteria" required>
+                            <option value="">Seleccionar lotería</option>
+                            <optgroup label="🏛️ Loterías Principales">
+                                <option value="Lotería del Quindío">Lotería del Quindío</option>
+                                <option value="Lotería de Bogotá">Lotería de Bogotá</option>
+                                <option value="Lotería del Huila">Lotería del Huila</option>
+                                <option value="Lotería de la Cruz Roja">Lotería de la Cruz Roja</option>
+                                <option value="Lotería de Medellín">Lotería de Medellín</option>
+                                <option value="Lotería de Boyacá">Lotería de Boyacá</option>
+                                <option value="Lotería de Santander">Lotería de Santander</option>
+                                <option value="Lotería del Tolima">Lotería del Tolima</option>
+                                <option value="Lotería de Cundinamarca">Lotería de Cundinamarca</option>
+                                <option value="Lotería de Manizales">Lotería de Manizales</option>
+                                <option value="Lotería del Valle">Lotería del Valle</option>
+                                <option value="Lotería de Risaralda">Lotería de Risaralda</option>
+                                <option value="Lotería del Cauca">Lotería del Cauca</option>
+                                <option value="Lotería del Meta">Lotería del Meta</option>
+                                <option value="Extra de Colombia">Extra de Colombia</option>
+                            </optgroup>
+                            <optgroup label="☀️ Sorteos Diarios">
+                                <option value="Cafeterito Noche">Cafeterito Noche</option>
+                                <option value="Cafeterito Tarde">Cafeterito Tarde</option>
+                                <option value="Cafeterito Mañana">Cafeterito Mañana</option>
+                                <option value="Chontico Noche">Chontico Noche</option>
+                                <option value="Chontico Día">Chontico Día</option>
+                                <option value="Paisita Noche">Paisita Noche</option>
+                                <option value="Paisita Día">Paisita Día</option>
+                                <option value="Sinuano Noche">Sinuano Noche</option>
+                                <option value="Sinuano Día">Sinuano Día</option>
+                                <option value="Caribeña Noche">Caribeña Noche</option>
+                                <option value="Caribeña Día">Caribeña Día</option>
+                                <option value="Dorado Noche">Dorado Noche</option>
+                                <option value="Dorado Tarde">Dorado Tarde</option>
+                                <option value="Dorado Mañana">Dorado Mañana</option>
+                                <option value="Astro Sol">Astro Sol</option>
+                                <option value="Astro Luna">Astro Luna</option>
+                                <option value="Culona Día">Culona Día</option>
+                                <option value="Culona Noche">Culona Noche</option>
+                                <option value="Motilón Noche">Motilón Noche</option>
+                                <option value="Motilón Tarde">Motilón Tarde</option>
+                                <option value="Pijao de Oro">Pijao de Oro</option>
+                                <option value="Fantástica Día">Fantástica Día</option>
+                                <option value="Fantástica Noche">Fantástica Noche</option>
+                                <option value="Samán de la Suerte">Samán de la Suerte</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label-campo">Fecha</label>
+                        <input type="date" name="fecha" id="sorteo-fecha-nueva" required>
+                    </div>
+                    <div>
+                        <label class="label-campo">Jornada / Horario</label>
+                        <input type="text" name="horario" placeholder="Ej: Día, Tarde o Noche" value="Día" required>
+                    </div>
+                    <div>
+                        <label class="label-campo">Valor Boleta ($)</label>
+                        <input type="number" name="valor" placeholder="Ej: 7000" min="0" step="100" value="7000" required>
+                    </div>
+                    <div>
+                        <label class="label-campo">Premio Mayor (Últimas 2)</label>
+                        <input type="text" name="premio_mayor" placeholder="Ej: $320.000" value="$320.000">
+                    </div>
+                    <div>
+                        <label class="label-campo">Premio Primeras 2</label>
+                        <input type="text" name="premio_primeras" placeholder="Ej: $50.000" value="$50.000">
+                    </div>
+                    <div>
+                        <label class="label-campo">Premio Del Medio</label>
+                        <input type="text" name="premio_medio" placeholder="Ej: $50.000" value="$50.000">
+                    </div>
+                </div>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn-oro">💾 GUARDAR Y ACTIVAR SORTEO</button>
+                    <button type="button" class="btn-filtro" id="btn-cancelar-sorteo">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- LISTA DE SORTEOS CREADOS -->
+        {% if sorteos %}
+        <div class="sorteos-admin-grid">
+            {% for s in sorteos %}
+            <div class="sorteo-admin-card {% if s.estado == 'CERRADO' %}cerrado{% endif %}">
+                <div class="sorteo-admin-card-top">
+                    <span class="badge-sorteo-estado {{ s.estado|lower }}">
+                        {% if s.estado == 'ACTIVO' %}🟢 ACTIVO{% else %}🔒 CERRADO{% endif %}
+                    </span>
+                    <strong>🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}</strong>
+                </div>
+                <h4>🎟️ {{ s.nombre }}</h4>
+                <div class="sorteo-admin-card-meta">
+                    <span>🎰 {{ s.loteria }}</span>
+                    <span>📅 {{ s.fecha }} ({{ s.horario }})</span>
+                </div>
+                <div class="sorteo-admin-card-premios">
+                    <small>🥇 {{ s.premio_mayor }} · 🥈 {{ s.premio_primeras }} · 🥉 {{ s.premio_medio }}</small>
+                </div>
+                <div class="sorteo-admin-card-acciones">
+                    <a href="{{ url_for('ver_tabla', id=s.id) }}" target="_blank" class="btn-admin-tabla">
+                        🔢 Ver Tabla 00-99 ➔
+                    </a>
+                    <form method="POST" action="{{ url_for('cambiar_estado_sorteo', id=s.id) }}" style="display:inline;">
+                        <button type="submit" class="btn-admin-estado" title="Cambiar estado">
+                            {% if s.estado == 'ACTIVO' %}🔒 Cerrar{% else %}🟢 Activar{% endif %}
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ url_for('eliminar_sorteo', id=s.id) }}" style="display:inline;" onsubmit="return confirm('¿Eliminar este sorteo?');">
+                        <button type="submit" class="btn-admin-eliminar" title="Eliminar">❌</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="sin-resultados" style="padding: 25px;">
+            <p style="margin: 0;">No tienes sorteos creados aún. Haz clic en <b>➕ CREAR NUEVO SORTEO</b> para comenzar.</p>
+        </div>
+        {% endif %}
+
+    </section>
+
+
+
+    <!-- =================================================
          REGISTRAR VENTA
     ================================================== -->
 
@@ -107,6 +258,22 @@
 
 
             <div class="form-grid">
+
+                <!-- ASIGNAR A SORTEO -->
+                <div style="grid-column: 1 / -1;">
+                    <label class="label-campo">Sorteo / Dinámica (Opcional - Autocompleta datos):</label>
+                    <select name="sorteo_id" id="selector-sorteo-venta" style="width: 100%;">
+                        <option value="">-- Sin sorteo específico (Venta general) --</option>
+                        {% for s in sorteos_activos %}
+                        <option value="{{ s.id }}" 
+                                data-loteria="{{ s.loteria }}" 
+                                data-fecha="{{ s.fecha }}" 
+                                data-valor="{{ s.valor }}">
+                            🎟️ {{ s.nombre }} — {{ s.loteria }} ({{ s.fecha }} · ${{ "{:,.0f}".format(s.valor).replace(",", ".") }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
 
                 <!-- TELÉFONO -->
@@ -1229,6 +1396,63 @@ if (btnCopiarAnuncio && anuncioPreview) {
                 }, 3000);
             }
         });
+    });
+}
+
+
+/* =========================================================
+   GESTIÓN DE SORTEOS INTERACTIVA
+========================================================= */
+
+const btnToggleSorteo = document.getElementById("btn-toggle-crear-sorteo");
+const formSorteoBox = document.getElementById("form-crear-sorteo-box");
+const btnCancelarSorteo = document.getElementById("btn-cancelar-sorteo");
+const inputFechaNueva = document.getElementById("sorteo-fecha-nueva");
+
+if (inputFechaNueva && !inputFechaNueva.value) {
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoy.getDate()).padStart(2, "0");
+    inputFechaNueva.value = `${año}-${mes}-${dia}`;
+}
+
+if (btnToggleSorteo && formSorteoBox) {
+    btnToggleSorteo.addEventListener("click", () => {
+        const estaOculto = formSorteoBox.style.display === "none";
+        formSorteoBox.style.display = estaOculto ? "block" : "none";
+        if (estaOculto) {
+            formSorteoBox.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+}
+
+if (btnCancelarSorteo && formSorteoBox) {
+    btnCancelarSorteo.addEventListener("click", () => {
+        formSorteoBox.style.display = "none";
+    });
+}
+
+// Autocompletar datos al seleccionar sorteo en Registrar Venta
+const selectorSorteoVenta = document.getElementById("selector-sorteo-venta");
+const selectLoteriaVenta = document.getElementById("loteria");
+const inputFechaVenta = document.getElementById("fecha");
+const inputValorVenta = document.querySelector("input[name='valor']");
+
+if (selectorSorteoVenta) {
+    selectorSorteoVenta.addEventListener("change", function() {
+        const opt = this.options[this.selectedIndex];
+        if (opt && opt.value) {
+            if (selectLoteriaVenta && opt.dataset.loteria) {
+                selectLoteriaVenta.value = opt.dataset.loteria;
+            }
+            if (inputFechaVenta && opt.dataset.fecha) {
+                inputFechaVenta.value = opt.dataset.fecha;
+            }
+            if (inputValorVenta && opt.dataset.valor) {
+                inputValorVenta.value = opt.dataset.valor;
+            }
+        }
     });
 }
 

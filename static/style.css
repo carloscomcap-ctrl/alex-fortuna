@@ -447,6 +447,31 @@ select option {
 
 
 /* =========================================================
+   CALENDARIOS DESPLEGABLES (INPUT DATE)
+   ========================================================= */
+
+input[type="date"] {
+    cursor: pointer;
+    position: relative;
+    color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(78%) sepia(60%) saturate(800%) hue-rotate(5deg) brightness(115%);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 3px;
+    border-radius: 6px;
+    transition: transform 0.2s, filter 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    transform: scale(1.2);
+    filter: invert(100%) sepia(100%) saturate(1000%) hue-rotate(10deg);
+}
+
+
+/* =========================================================
    BOTONES
    ========================================================= */
 

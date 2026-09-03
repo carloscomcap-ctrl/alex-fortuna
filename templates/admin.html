@@ -167,7 +167,7 @@
                     </div>
                     <div>
                         <label class="label-campo">Fecha</label>
-                        <input type="date" name="fecha" id="sorteo-fecha-nueva" required>
+                        <input type="date" name="fecha" id="sorteo-fecha-nueva" required onclick="try{this.showPicker()}catch(e){}" title="Haz clic para abrir el calendario">
                     </div>
                     <div>
                         <label class="label-campo">Jornada / Horario</label>
@@ -380,6 +380,8 @@
                     name="fecha"
                     id="fecha"
                     required
+                    onclick="try{this.showPicker()}catch(e){}"
+                    title="Haz clic para abrir el calendario"
                 >
 
 
@@ -564,7 +566,7 @@
 
             <div>
                 <label class="label-campo">📅 Fecha del sorteo</label>
-                <input type="date" id="liq-fecha">
+                <input type="date" id="liq-fecha" onclick="try{this.showPicker()}catch(e){}" title="Haz clic para abrir el calendario">
             </div>
 
             <div>
@@ -1455,6 +1457,18 @@ if (selectorSorteoVenta) {
         }
     });
 }
+
+
+// Abrir el calendario desplegable al hacer clic en cualquier parte del campo de fecha
+document.querySelectorAll('input[type="date"]').forEach(input => {
+    input.addEventListener('click', function() {
+        if (typeof this.showPicker === 'function') {
+            try {
+                this.showPicker();
+            } catch (err) {}
+        }
+    });
+});
 
 </script>
 

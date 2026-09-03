@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Consulta - Alex Fortuna</title>
+    <title>Consulta - Dinámicas Alex 27</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -15,11 +15,11 @@
 
 <div class="top">
     <div class="brand">
-        ALEX <b>FORTUNA</b>
+        DINÁMICAS <b>ALEX 27</b>
     </div>
 
     <div class="mini">
-        SORTEOS • LOTERÍAS
+        RIFAS • LOTERÍAS DIARIAS
     </div>
 </div>
 
@@ -28,9 +28,9 @@
 
     <div class="resultado-titulo">
 
-        <h1>🎟️ ALEX FORTUNA</h1>
+        <h1>🎟️ DINÁMICAS ALEX 27</h1>
 
-        <p>SORTEOS • LOTERÍAS</p>
+        <p>RIFAS • LOTERÍAS DIARIAS</p>
 
     </div>
 
@@ -62,11 +62,11 @@
                     <div>
 
                         <strong>
-                            ALEX FORTUNA
+                            DINÁMICAS ALEX 27
                         </strong>
 
                         <small>
-                            SORTEOS • LOTERÍAS
+                            RIFAS • LOTERÍAS DIARIAS
                         </small>
 
                     </div>
@@ -166,6 +166,51 @@
                 </div>
 
 
+                <!-- MODALIDADES DE PREMIOS -->
+                <div class="boleta-modalidades">
+
+                    <div class="modalidades-titulo">
+                        🏆 TU NÚMERO #{{ venta.numero }} JUEGA POR 3 OPORTUNIDADES:
+                    </div>
+
+                    <div class="modalidades-grid">
+
+                        <div class="modalidad-item">
+                            <span class="medalla">🥇</span>
+                            <strong>Últimas 2</strong>
+                            <small>Premio Mayor</small>
+                        </div>
+
+                        <div class="modalidad-item">
+                            <span class="medalla">🥈</span>
+                            <strong>Primeras 2</strong>
+                            <small>Premio Secundario</small>
+                        </div>
+
+                        <div class="modalidad-item">
+                            <span class="medalla">🥉</span>
+                            <strong>Del medio</strong>
+                            <small>Premio Secundario</small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COMPARTIR BOLETA -->
+                <div class="boleta-acciones-cliente">
+
+                    <a href="https://api.whatsapp.com/send?text=🎟️%20*BOLETA%20OFICIAL%20-%20DINÁMICAS%20ALEX%2027*%20🍀%0A👤%20*Cliente:*%20{{ venta.nombre }}%0A🔢%20*Número:*%20%23{{ venta.numero }}%0A🎰%20*Lotería:*%20{{ venta.loteria }}%0A📅%20*Fecha:*%20{{ venta.fecha }}%0A✅%20*Estado:*%20{{ venta.estado }}%0A🏆%20*Juega%20por:*%20Últimas%202,%20Primeras%202%20y%20Cifras%20del%20medio.%0A🔥%20¡Con%20toda%20la%20energía%20ganadora!%20💰✨"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="btn-compartir-wa">
+                        📲 Compartir mi boleta por WhatsApp
+                    </a>
+
+                </div>
+
+
                 <div class="boleta-footer">
 
                     <span>
@@ -173,7 +218,7 @@
                     </span>
 
                     <span>
-                        Alex Fortuna
+                        Dinámicas Alex 27
                     </span>
 
                 </div>

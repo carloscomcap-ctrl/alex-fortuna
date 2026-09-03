@@ -1,7 +1,7 @@
-ALEX FORTUNA - VERSION WEB
-============================
+DINÁMICAS ALEX 27 - PLATAFORMA DE RIFAS Y LOTERÍAS
+===================================================
 
-Esta versión está preparada para subir a un servidor y funcionar desde celulares.
+Plataforma de consulta y control de boletas para rifas y loterías diarias.
 
 Rutas:
  /             consulta pública
@@ -31,4 +31,4 @@ Para desplegar en Render:
 
 IMPORTANTE:
 La dirección pública dependerá del proveedor de hosting. El dominio propio
-(por ejemplo alexfortuna.com) se configura después, cuando tengas dominio.
+(por ejemplo dinamicasalex27.com) se configura después, cuando tengas dominio.

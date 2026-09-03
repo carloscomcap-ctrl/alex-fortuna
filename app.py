@@ -37,7 +37,7 @@ app.secret_key = os.environ.get(
 
 db_url = os.environ.get(
     "DATABASE_URL",
-    "sqlite:///alex_fortuna.db"
+    "sqlite:///dinamicas_alex_27.db"
 )
 
 if db_url.startswith("postgres://"):
@@ -1050,7 +1050,7 @@ def exportar():
         as_attachment=True,
 
         download_name=(
-            "alex_fortuna_ventas.xlsx"
+            "dinamicas_alex_27_ventas.xlsx"
         ),
 
         mimetype=(
@@ -1058,6 +1058,80 @@ def exportar():
             "officedocument.spreadsheetml.sheet"
         )
     )
+
+
+# =========================================================
+# VERIFICAR GANADORES (POR 4 CIFRAS)
+# =========================================================
+
+@app.post("/admin/verificar-ganadores")
+def verificar_ganadores():
+
+    if not required_admin():
+        return {"error": "No autorizado"}, 401
+
+    data = request.get_json() or {}
+    loteria = str(data.get("loteria", "")).strip()
+    fecha = str(data.get("fecha", "")).strip()
+    cifras = str(data.get("cifras", "")).strip()
+
+    cifras = re.sub(r"\D", "", cifras)
+
+    if len(cifras) < 4:
+        return {
+            "error": "Debes ingresar al menos 4 cifras del sorteo (ej: 5827)."
+        }, 400
+
+    ultimas_2 = cifras[-2:]
+    primeras_2 = cifras[:2]
+    medio_2 = cifras[1:3]
+
+    consulta = Venta.query
+
+    if loteria:
+        consulta = consulta.filter_by(loteria=loteria)
+
+    if fecha:
+        consulta = consulta.filter_by(fecha=fecha)
+
+    todas_ventas = consulta.all()
+
+    def serialize_ventas(ventas_list):
+        return [
+            {
+                "id": v.id,
+                "nombre": v.nombre,
+                "telefono": v.telefono,
+                "numero": v.numero,
+                "loteria": v.loteria,
+                "fecha": v.fecha,
+                "valor": v.valor,
+                "estado": v.estado
+            }
+            for v in ventas_list
+        ]
+
+    def buscar_por_numero(target_num):
+        matches = []
+        target_int = int(target_num) if target_num.isdigit() else None
+        for v in todas_ventas:
+            num_clean = str(v.numero).strip()
+            if num_clean == target_num or (target_int is not None and num_clean.isdigit() and int(num_clean) == target_int):
+                matches.append(v)
+        return serialize_ventas(matches)
+
+    return {
+        "ok": True,
+        "cifras": cifras,
+        "ultimas_2": ultimas_2,
+        "primeras_2": primeras_2,
+        "medio_2": medio_2,
+        "ganadores": {
+            "ultimas": buscar_por_numero(ultimas_2),
+            "primeras": buscar_por_numero(primeras_2),
+            "medio": buscar_por_numero(medio_2)
+        }
+    }
 
 
 # =========================================================
@@ -1069,7 +1143,7 @@ def salud():
 
     return {
         "ok": True,
-        "servicio": "Alex Fortuna"
+        "servicio": "Dinámicas Alex 27"
     }
 
 

@@ -1,5 +1,5 @@
 /* =========================================================
-   ALEX FORTUNA
+   DINÁMICAS ALEX 27
    DISEÑO PREMIUM — NEGRO + DORADO
    ========================================================= */
 
@@ -1583,3 +1583,411 @@ footer {
         padding: 22px;
     }
 }
+
+
+/* =========================================================
+   BUSCADOR Y FILTROS ADMIN
+   ========================================================= */
+
+.buscador-ventas-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    background: #0d1522;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #223249;
+}
+
+.buscador-input-group {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    display: flex;
+    align-items: center;
+}
+
+.buscador-icono {
+    position: absolute;
+    left: 14px;
+    font-size: 16px;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+#input-buscador {
+    width: 100%;
+    padding: 12px 38px 12px 42px;
+    background: #070c14;
+    border: 1px solid #283a54;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+#input-buscador:focus {
+    outline: none;
+    border-color: var(--dorado);
+    box-shadow: 0 0 12px rgba(245, 197, 66, 0.25);
+    background: #0a111c;
+}
+
+#btn-limpiar-busqueda {
+    position: absolute;
+    right: 12px;
+    background: #1c2738;
+    border: none;
+    color: #aeb8c7;
+    font-size: 13px;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+#btn-limpiar-busqueda:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.filtros-estado-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-filtro {
+    background: #111a28;
+    color: #aeb8c7;
+    border: 1px solid #283a54;
+    padding: 9px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-filtro:hover {
+    background: #18253a;
+    color: #ffffff;
+    border-color: #384f72;
+}
+
+.btn-filtro.activo {
+    background: linear-gradient(135deg, #ffe07a, var(--dorado), var(--dorado-2));
+    color: #0b111a;
+    border-color: var(--dorado);
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(245, 197, 66, 0.25);
+}
+
+.resumen-busqueda {
+    font-size: 13px;
+    color: #8fa0b5;
+    margin-bottom: 12px;
+}
+
+.resumen-busqueda strong {
+    color: var(--dorado);
+}
+
+.celda-vacia {
+    text-align: center;
+    padding: 35px 20px !important;
+    color: #8fa0b5;
+    font-size: 15px;
+}
+
+
+/* =========================================================
+   MODALIDADES DE PREMIOS EN LA BOLETA
+   ========================================================= */
+
+.boleta-modalidades {
+    background: #090e18;
+    border-top: 1px solid #1c2a3f;
+    border-bottom: 1px solid #1c2a3f;
+    padding: 16px 20px;
+}
+
+.modalidades-titulo {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: var(--dorado);
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.modalidades-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.modalidad-item {
+    background: #101927;
+    border: 1px solid #22344c;
+    border-radius: 10px;
+    padding: 10px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.modalidad-item .medalla {
+    font-size: 18px;
+}
+
+.modalidad-item strong {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.modalidad-item small {
+    font-size: 10px;
+    color: #aeb8c7;
+}
+
+.boleta-acciones-cliente {
+    padding: 14px 20px;
+    text-align: center;
+    background: #090e18;
+}
+
+.btn-compartir-wa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 14px;
+    text-decoration: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25);
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-compartir-wa:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+
+/* =========================================================
+   LIQUIDADOR DE GANADORES Y GENERADOR DE ANUNCIOS ADMIN
+   ========================================================= */
+
+.label-campo {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--dorado);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.btn-oro {
+    background: linear-gradient(135deg, #ffe07a, var(--dorado), var(--dorado-2));
+    color: #0b111a !important;
+    font-weight: 900;
+    font-size: 13px;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 11px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 197, 66, 0.25);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-oro:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(245, 197, 66, 0.4);
+}
+
+.btn-oro:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-wa-comprobante {
+    background: #128C7E !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 11px !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    transition: all 0.2s !important;
+}
+
+.btn-wa-comprobante:hover {
+    background: #25D366 !important;
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+.anuncio-textarea {
+    width: 100%;
+    background: #080c14;
+    border: 1px solid #283a54;
+    border-radius: 12px;
+    color: #f1f5f9;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 14px;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.anuncio-textarea:focus {
+    outline: none;
+    border-color: var(--dorado);
+}
+
+/* LIQUIDADOR RESULTADOS */
+.resultado-liquidacion-banner {
+    background: linear-gradient(135deg, #111e30, #0c1421);
+    border: 1px solid #2b405f;
+    padding: 16px 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 15px;
+}
+
+.ganadores-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.ganador-categoria-card {
+    background: #080e18;
+    border: 1px solid #23334a;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.cat-header {
+    background: #111a28;
+    border-bottom: 1px solid #23334a;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cat-medalla {
+    font-size: 26px;
+}
+
+.cat-titulo {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--dorado);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cat-numero {
+    font-size: 13px;
+    color: #cbd5e1;
+    margin-top: 2px;
+}
+
+.cat-body {
+    padding: 14px;
+}
+
+.ganador-vacio {
+    padding: 20px 10px;
+    text-align: center;
+    color: #8fa0b5;
+    font-size: 13px;
+}
+
+.ganador-item {
+    background: #101a27;
+    border: 1px solid #1f2f45;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.ganador-item:last-child {
+    margin-bottom: 0;
+}
+
+.ganador-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ganador-info strong {
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.ganador-info span {
+    font-size: 12px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-felicitar-wa {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-felicitar-wa:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+}
+
+
+

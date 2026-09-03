@@ -8,7 +8,9 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1">
 
-    <title>Panel Administrador - Dinámicas Alex 27</title>
+    <title>Panel Administrador - Dinámicas Alex 2027</title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -25,13 +27,17 @@
 
 <div class="top">
 
-    <div class="brand">
-        DINÁMICAS <b>ALEX 27</b>
-    </div>
-
-    <div class="mini">
-        RIFAS • LOTERÍAS DIARIAS
-    </div>
+    <a href="{{ url_for('home') }}" class="brand-link">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="brand-logo">
+        <div>
+            <div class="brand">
+                DINÁMICAS <b>ALEX 2027</b>
+            </div>
+            <div class="mini">
+                RIFAS • LOTERÍAS DIARIAS
+            </div>
+        </div>
+    </a>
 
 </div>
 
@@ -70,7 +76,7 @@
         <div>
 
             <h1>
-                Panel de Dinámicas Alex 27
+                Panel de Dinámicas Alex 2027
             </h1>
 
             <p>
@@ -611,7 +617,7 @@
 
             <div>
                 <label class="label-campo">Título del sorteo</label>
-                <input type="text" id="gen-titulo" value="DINÁMICAS ALEX 27">
+                <input type="text" id="gen-titulo" value="DINÁMICAS ALEX 2027">
             </div>
 
             <div>
@@ -968,7 +974,7 @@
 
 <footer>
 
-    Dinámicas Alex 27 · Plataforma de Rifas y Loterías Diarias
+    Dinámicas Alex 2027 · Plataforma de Rifas y Loterías Diarias
 
 </footer>
 
@@ -1190,7 +1196,7 @@ function enviarComprobanteWA(nombre, telefono, numero, loteria, fecha, estado) {
         : "🟡⚠️ *COMPROBANTE DE NÚMERO APARTADO* 🎟️";
 
     const msg = `${estadoTexto}\n\n` +
-        `¡Hola *${nombre}*! Gracias por participar en *DINÁMICAS ALEX 27*.\n\n` +
+        `¡Hola *${nombre}*! Gracias por participar en *DINÁMICAS ALEX 2027*.\n\n` +
         `🎟️ *Tu Número:* #${numero}\n` +
         `🎰 *Lotería:* ${loteria}\n` +
         `📅 *Fecha:* ${fecha}\n` +
@@ -1288,7 +1294,7 @@ function mostrarResultadoLiquidacion(data) {
                 let cleanTel = (g.telefono || "").replace(/\D/g, "");
                 if (cleanTel.length === 10) cleanTel = "57" + cleanTel;
                 const felicitacionMsg = `🎉🥳 *¡FELICITACIONES, ERES GANADOR!* 🏆✨\n\n` +
-                    `¡Hola *${g.nombre}*! Tu número *#${g.numero}* ha resultado ganador en *DINÁMICAS ALEX 27* con la ${g.loteria}.\n\n` +
+                    `¡Hola *${g.nombre}*! Tu número *#${g.numero}* ha resultado ganador en *DINÁMICAS ALEX 2027* con la ${g.loteria}.\n\n` +
                     `🏆 *Categoría:* ${titulo}\n` +
                     `🔢 *Resultado oficial:* ${data.cifras}\n` +
                     `💰 *¡Comunícate con nosotros para coordinar la entrega de tu premio!*\n\n` +
@@ -1362,7 +1368,7 @@ const anuncioCopiadoAviso = document.getElementById("anuncio-copiado-aviso");
 function actualizarAnuncioWA() {
     if (!anuncioPreview) return;
 
-    const tit = (genTitulo ? genTitulo.value : "DINÁMICAS ALEX 27").trim();
+    const tit = (genTitulo ? genTitulo.value : "DINÁMICAS ALEX 2027").trim();
     const lot = (genLoteria ? genLoteria.value : "CHONTICO DÍA").trim().toUpperCase();
     const val = (genValor ? genValor.value : "$7.000").trim();
     const p1 = (genP1 ? genP1.value : "$320.000").trim();

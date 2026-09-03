@@ -1160,7 +1160,7 @@ def exportar():
         as_attachment=True,
 
         download_name=(
-            "dinamicas_alex_27_ventas.xlsx"
+            "dinamicas_alex_2027_ventas.xlsx"
         ),
 
         mimetype=(
@@ -1253,7 +1253,7 @@ def salud():
 
     return {
         "ok": True,
-        "servicio": "Dinámicas Alex 27"
+        "servicio": "Dinámicas Alex 2027"
     }
 
 

@@ -1,5 +1,5 @@
-DINÁMICAS ALEX 27 - PLATAFORMA DE RIFAS Y LOTERÍAS
-===================================================
+DINÁMICAS ALEX 2027 - PLATAFORMA DE RIFAS Y LOTERÍAS
+====================================================
 
 Plataforma de consulta y control de boletas para rifas y loterías diarias.
 

@@ -10,9 +10,11 @@
 
     <title>
         {% block title %}
-        Dinámicas Alex 27
+        Dinámicas Alex 2027
         {% endblock %}
     </title>
+
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
@@ -23,13 +25,17 @@
 
     <div class="top">
 
-        <div class="brand">
-            DINÁMICAS <b>ALEX 27</b>
-        </div>
-
-        <div class="mini">
-            RIFAS • LOTERÍAS DIARIAS
-        </div>
+        <a href="{{ url_for('home') }}" class="brand-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Dinámicas Alex 2027" class="brand-logo">
+            <div>
+                <div class="brand">
+                    DINÁMICAS <b>ALEX 2027</b>
+                </div>
+                <div class="mini">
+                    RIFAS • LOTERÍAS DIARIAS
+                </div>
+            </div>
+        </a>
 
     </div>
 
@@ -51,9 +57,9 @@
     {% endblock %}
 
 
-    <footer>
-        🍀 Dinámicas Alex 27 · RIFAS • LOTERÍAS DIARIAS
-    </footer>
+    <div class="footer">
+        🍀 Dinámicas Alex 2027 · RIFAS • LOTERÍAS DIARIAS
+    </div>
 
 </body>
 

@@ -1,5 +1,5 @@
 /* =========================================================
-   DINÁMICAS ALEX 27
+   DINÁMICAS ALEX 2027
    DISEÑO PREMIUM — NEGRO + DORADO
    ========================================================= */
 
@@ -110,6 +110,29 @@ body {
 
     box-shadow:
         0 5px 25px rgba(0, 0, 0, 0.18);
+}
+
+.brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    gap: 15px;
+}
+
+.brand-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--dorado);
+    box-shadow: 0 0 18px rgba(245, 197, 66, 0.45);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brand-link:hover .brand-logo {
+    transform: rotate(8deg) scale(1.08);
+    box-shadow: 0 0 28px rgba(245, 197, 66, 0.8);
 }
 
 .brand {

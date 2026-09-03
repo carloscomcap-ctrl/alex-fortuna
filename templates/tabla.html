@@ -1,7 +1,7 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}
-{{ sorteo.nombre }} - Tabla 00-99 | Dinámicas Alex 27
+{{ sorteo.nombre }} - Tabla 00-99 | Dinámicas Alex 2027
 {% endblock %}
 
 {% block body %}
@@ -100,7 +100,7 @@
                 {% set casilla = mapa_numeros[num_str] %}
 
                 {% if casilla.estado == "LIBRE" %}
-                    <a href="https://api.whatsapp.com/send?text=¡Hola%20*DINÁMICAS%20ALEX%2027*!%20🍀%20Deseo%20apartar%20el%20número%20*%23{{ num_str }}*%20para%20el%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }}%20-%20{{ sorteo.fecha }}).%20¿Sigue%20disponible?"
+                    <a href="https://api.whatsapp.com/send?text=¡Hola%20*DINÁMICAS%20ALEX%202027*!%20🍀%20Deseo%20apartar%20el%20número%20*%23{{ num_str }}*%20para%20el%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }}%20-%20{{ sorteo.fecha }}).%20¿Sigue%20disponible?"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="casilla-num libre"
@@ -129,7 +129,7 @@
 
     <!-- ACCIONES INFERIORES -->
     <section class="acciones-inferiores-tabla">
-        <a href="https://api.whatsapp.com/send?text=🔥%20*¡TABLA%20OFICIAL%20DE%20NÚMEROS%20-%20DINÁMICAS%20ALEX%2027!*%20🍀%0A🎟️%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }})%0A💰%20Valor%20Boleta:%20${{ "{:,.0f}".format(sorteo.valor).replace(",", ".") }}%0A🏆%20Premio%20Mayor:%20{{ sorteo.premio_mayor }}%0A👉%20*Mira%20los%20números%20disponibles%20aquí:*%20" 
+        <a href="https://api.whatsapp.com/send?text=🔥%20*¡TABLA%20OFICIAL%20DE%20NÚMEROS%20-%20DINÁMICAS%20ALEX%202027!*%20🍀%0A🎟️%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }})%0A💰%20Valor%20Boleta:%20${{ "{:,.0f}".format(sorteo.valor).replace(",", ".") }}%0A🏆%20Premio%20Mayor:%20{{ sorteo.premio_mayor }}%0A👉%20*Mira%20los%20números%20disponibles%20aquí:*%20" 
            id="btn-compartir-tabla"
            target="_blank" 
            class="btn-compartir-wa" 

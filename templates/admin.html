@@ -308,10 +308,15 @@
                 <input
                     type="text"
                     name="numero"
-                    placeholder="🎟️ Número"
+                    id="numero-venta"
+                    placeholder="🎟️ Número (00 al 99)"
                     inputmode="numeric"
-                    maxlength="4"
+                    maxlength="2"
+                    pattern="[0-9]{1,2}"
                     required
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)"
+                    onblur="if(this.value.length === 1) this.value = '0' + this.value"
+                    title="Solo números del 00 al 99"
                 >
 
 
@@ -396,6 +401,7 @@
                 <input
                     type="number"
                     name="valor"
+                    id="valor-venta"
                     placeholder="💰 Valor"
                     min="0"
                     step="100"
@@ -1445,23 +1451,29 @@ if (btnCancelarSorteo && formSorteoBox) {
 const selectorSorteoVenta = document.getElementById("selector-sorteo-venta");
 const selectLoteriaVenta = document.getElementById("loteria");
 const inputFechaVenta = document.getElementById("fecha");
-const inputValorVenta = document.querySelector("input[name='valor']");
+const inputValorVenta = document.getElementById("valor-venta");
+
+function aplicarAutocompletadoSorteo() {
+    if (!selectorSorteoVenta) return;
+    const opt = selectorSorteoVenta.options[selectorSorteoVenta.selectedIndex];
+    if (opt && opt.value) {
+        if (selectLoteriaVenta && opt.dataset.loteria) {
+            selectLoteriaVenta.value = opt.dataset.loteria;
+        }
+        if (inputFechaVenta && opt.dataset.fecha) {
+            inputFechaVenta.value = opt.dataset.fecha;
+        }
+        if (inputValorVenta && opt.dataset.valor) {
+            inputValorVenta.value = opt.dataset.valor;
+        }
+    }
+}
 
 if (selectorSorteoVenta) {
-    selectorSorteoVenta.addEventListener("change", function() {
-        const opt = this.options[this.selectedIndex];
-        if (opt && opt.value) {
-            if (selectLoteriaVenta && opt.dataset.loteria) {
-                selectLoteriaVenta.value = opt.dataset.loteria;
-            }
-            if (inputFechaVenta && opt.dataset.fecha) {
-                inputFechaVenta.value = opt.dataset.fecha;
-            }
-            if (inputValorVenta && opt.dataset.valor) {
-                inputValorVenta.value = opt.dataset.valor;
-            }
-        }
-    });
+    selectorSorteoVenta.addEventListener("change", aplicarAutocompletadoSorteo);
+    if (selectorSorteoVenta.value) {
+        aplicarAutocompletadoSorteo();
+    }
 }
 
 

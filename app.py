@@ -510,6 +510,17 @@ def admin():
                     "Debes ingresar el número."
                 )
 
+            # Validar que el número sea de 2 cifras (00 al 99)
+            numero_limpio = numero.strip()
+            if not numero_limpio.isdigit() or len(numero_limpio) > 2:
+                raise ValueError(
+                    "En Dinámicas Alex 2027 las rifas son del 00 al 99. "
+                    "El número ingresado debe ser de máximo 2 cifras (ej: 05, 27, 99)."
+                )
+
+            # Normalizar a exactamente 2 dígitos (ej: 7 -> 07)
+            numero = f"{int(numero_limpio):02d}"
+
             if not loteria:
                 raise ValueError(
                     "Debes seleccionar una lotería."

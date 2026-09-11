@@ -309,7 +309,12 @@ def ver_tabla(id):
     apartados = 0
     pagados = 0
 
-    for venta in sorteo.ventas:
+    ventas_sorteo = Venta.query.filter(
+        (Venta.sorteo_id == sorteo.id) |
+        ((Venta.sorteo_id == None) & (Venta.loteria == sorteo.loteria) & (Venta.fecha == sorteo.fecha))
+    ).all()
+
+    for venta in ventas_sorteo:
         num_str = str(venta.numero).strip().zfill(2)
         if num_str in mapa_numeros:
             estado = (venta.estado or "PENDIENTE").upper()
@@ -556,74 +561,63 @@ def admin():
                     )
 
 
+            # Si no se seleccionó sorteo explícito, pero hay un sorteo ACTIVO con la misma lotería y fecha, vincularlo automáticamente
+            if not sorteo:
+                sorteo = Sorteo.query.filter_by(
+                    loteria=loteria,
+                    fecha=fecha,
+                    estado="ACTIVO"
+                ).first()
+
             # =================================================
-            # COMPROBAR DUPLICADO
+            # COMPROBAR DUPLICADO ESTRICTO
             # =================================================
 
-            consulta = Venta.query.filter_by(
-                numero=numero,
-                loteria=loteria
-            )
+            numero_int_str = str(int(numero))
 
             if sorteo:
-                consulta = consulta.filter_by(
-                    sorteo_id=sorteo.id
-                )
+                existente = Venta.query.filter(
+                    Venta.sorteo_id == sorteo.id,
+                    (Venta.numero == numero) | (Venta.numero == numero_int_str)
+                ).first()
 
+                if not existente:
+                    existente = Venta.query.filter(
+                        Venta.loteria == sorteo.loteria,
+                        Venta.fecha == sorteo.fecha,
+                        (Venta.numero == numero) | (Venta.numero == numero_int_str)
+                    ).first()
             else:
-                # Las ventas antiguas sin sorteo mantienen
-                # la regla anterior de número + lotería.
-                consulta = consulta.filter_by(
-                    sorteo_id=None
-                )
-
-            existente = consulta.first()
-
+                existente = Venta.query.filter(
+                    Venta.loteria == loteria,
+                    Venta.fecha == fecha,
+                    (Venta.numero == numero) | (Venta.numero == numero_int_str)
+                ).first()
 
             if existente:
-
+                estado_lbl = "PAGADO 🟢" if existente.estado == "PAGADO" else "APARTADO 🟡"
                 flash(
-                    f"⚠️ El número {numero} "
-                    f"ya está registrado para "
-                    f"{loteria} en este sorteo.",
+                    f"⛔ ERROR: El número #{numero} YA ESTÁ OCUPADO ({estado_lbl}) por {existente.nombre} (Tel: {existente.telefono}) en {existente.loteria} ({existente.fecha}). No se puede volver a vender.",
                     "error"
                 )
 
             else:
 
                 venta = Venta(
-
                     telefono=telefono,
-
                     nombre=nombre,
-
                     numero=numero,
-
                     loteria=loteria,
-
                     fecha=fecha,
-
                     valor=valor,
-
                     estado=estado,
-
-                    sorteo_id=(
-                        sorteo.id
-                        if sorteo
-                        else None
-                    )
+                    sorteo_id=(sorteo.id if sorteo else None)
                 )
 
-                db.session.add(
-                    venta
-                )
-
+                db.session.add(venta)
                 db.session.commit()
 
-                flash(
-                    "✅ Venta registrada correctamente.",
-                    "ok"
-                )
+                flash("✅ Venta registrada correctamente.", "ok")
 
 
         except Exception as error:

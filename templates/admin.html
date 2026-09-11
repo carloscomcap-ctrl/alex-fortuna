@@ -179,21 +179,43 @@
                         <label class="label-campo">Jornada / Horario</label>
                         <input type="text" name="horario" placeholder="Ej: Día, Tarde o Noche" value="Día" required>
                     </div>
+
+                    <div style="grid-column: 1 / -1; background: #060c16; border: 1px solid #1c2b3e; border-radius: 12px; padding: 14px; margin: 6px 0;">
+                        <label class="label-campo" style="margin-bottom: 8px; color: var(--dorado); font-weight: 800;">⚡ Plantillas Rápidas de Premios (1 clic):</label>
+                        <div class="botones-presets-grid">
+                            <button type="button" class="btn-preset-sorteo" data-valor="5000" data-p1="$200.000" data-p2="$50.000" data-p3="$50.000">
+                                🎟️ $5.000 ($200k + $50k + $50k)
+                            </button>
+                            <button type="button" class="btn-preset-sorteo" data-valor="6000" data-p1="$250.000" data-p2="$50.000" data-p3="$50.000">
+                                🎟️ $6.000 ($250k + $50k + $50k)
+                            </button>
+                            <button type="button" class="btn-preset-sorteo activo" data-valor="7000" data-p1="$320.000" data-p2="$50.000" data-p3="$50.000">
+                                🎟️ $7.000 ($320k + $50k + $50k)
+                            </button>
+                            <button type="button" class="btn-preset-sorteo gratis" data-valor="0" data-p1="$50.000" data-p2="$0" data-p3="$0">
+                                🎁 EVENTO GRATIS ($50k)
+                            </button>
+                        </div>
+                        <small style="color: #94a3b8; font-size: 11px; display: block; margin-top: 8px;">
+                            💡 Los premios se fijan automáticamente pero los puedes editar libremente a tu gusto en las casillas de abajo.
+                        </small>
+                    </div>
+
                     <div>
                         <label class="label-campo">Valor Boleta ($)</label>
-                        <input type="number" name="valor" placeholder="Ej: 7000" min="0" step="100" value="7000" required>
+                        <input type="number" name="valor" id="sorteo-valor-nuevo" placeholder="Ej: 7000 (o 0 para gratis)" min="0" step="100" value="7000" required>
                     </div>
                     <div>
                         <label class="label-campo">Premio Mayor (Últimas 2)</label>
-                        <input type="text" name="premio_mayor" placeholder="Ej: $320.000" value="$320.000">
+                        <input type="text" name="premio_mayor" id="sorteo-p-mayor" placeholder="Ej: $320.000" value="$320.000">
                     </div>
                     <div>
                         <label class="label-campo">Premio Primeras 2</label>
-                        <input type="text" name="premio_primeras" placeholder="Ej: $50.000" value="$50.000">
+                        <input type="text" name="premio_primeras" id="sorteo-p-primeras" placeholder="Ej: $50.000" value="$50.000">
                     </div>
                     <div>
                         <label class="label-campo">Premio Del Medio</label>
-                        <input type="text" name="premio_medio" placeholder="Ej: $50.000" value="$50.000">
+                        <input type="text" name="premio_medio" id="sorteo-p-medio" placeholder="Ej: $50.000" value="$50.000">
                     </div>
                 </div>
                 <div style="margin-top: 15px; display: flex; gap: 10px;">
@@ -212,7 +234,7 @@
                     <span class="badge-sorteo-estado {{ s.estado|lower }}">
                         {% if s.estado == 'ACTIVO' %}🟢 ACTIVO{% else %}🔒 CERRADO{% endif %}
                     </span>
-                    <strong>🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}</strong>
+                    <strong>{% if s.valor == 0 %}<span style="color:#c084fc; font-weight:900;">🎁 GRATIS ($0)</span>{% else %}🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}{% endif %}</strong>
                 </div>
                 <h4>🎟️ {{ s.nombre }}</h4>
                 <div class="sorteo-admin-card-meta">
@@ -279,6 +301,8 @@
                         </option>
                         {% endfor %}
                     </select>
+                    <div id="badge-sorteo-info" style="display: none; margin-top: 8px; font-size: 12px; color: #86efac; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.35); border-radius: 8px; padding: 7px 12px;">
+                    </div>
                 </div>
 
 
@@ -1452,19 +1476,47 @@ const selectorSorteoVenta = document.getElementById("selector-sorteo-venta");
 const selectLoteriaVenta = document.getElementById("loteria");
 const inputFechaVenta = document.getElementById("fecha");
 const inputValorVenta = document.getElementById("valor-venta");
+const badgeSorteoInfo = document.getElementById("badge-sorteo-info");
 
 function aplicarAutocompletadoSorteo() {
     if (!selectorSorteoVenta) return;
     const opt = selectorSorteoVenta.options[selectorSorteoVenta.selectedIndex];
     if (opt && opt.value) {
+        // Lotería
         if (selectLoteriaVenta && opt.dataset.loteria) {
-            selectLoteriaVenta.value = opt.dataset.loteria;
+            const targetLot = opt.dataset.loteria.trim();
+            let matched = false;
+            for (let i = 0; i < selectLoteriaVenta.options.length; i++) {
+                if (selectLoteriaVenta.options[i].value.trim().toLowerCase() === targetLot.toLowerCase()) {
+                    selectLoteriaVenta.selectedIndex = i;
+                    matched = true;
+                    break;
+                }
+            }
+            if (!matched) {
+                const optNueva = new Option(targetLot, targetLot, true, true);
+                selectLoteriaVenta.add(optNueva);
+                selectLoteriaVenta.value = targetLot;
+            }
         }
+        // Fecha
         if (inputFechaVenta && opt.dataset.fecha) {
             inputFechaVenta.value = opt.dataset.fecha;
         }
-        if (inputValorVenta && opt.dataset.valor) {
+        // Valor
+        if (inputValorVenta && opt.dataset.valor !== undefined) {
             inputValorVenta.value = opt.dataset.valor;
+        }
+        // Badge visual
+        if (badgeSorteoInfo) {
+            badgeSorteoInfo.style.display = "block";
+            const valNum = parseInt(opt.dataset.valor || 0, 10);
+            const valorFmt = valNum === 0 ? "🎁 GRATIS ($0)" : "$" + valNum.toLocaleString("es-CO");
+            badgeSorteoInfo.innerHTML = `✓ <b>${opt.text.split('—')[0]}</b> cargado: Lotería (<b>${opt.dataset.loteria}</b>), Fecha (<b>${opt.dataset.fecha}</b>) y Valor (<b>${valorFmt}</b>) sincronizados de una vez.`;
+        }
+    } else {
+        if (badgeSorteoInfo) {
+            badgeSorteoInfo.style.display = "none";
         }
     }
 }
@@ -1475,6 +1527,59 @@ if (selectorSorteoVenta) {
         aplicarAutocompletadoSorteo();
     }
 }
+
+
+/* =========================================================
+   PRESETS DE PREMIOS AUTOMÁTICOS AL CREAR SORTEO
+========================================================= */
+
+const inputValorNuevoSorteo = document.getElementById("sorteo-valor-nuevo");
+const inputPremioMayor = document.getElementById("sorteo-p-mayor");
+const inputPremioPrimeras = document.getElementById("sorteo-p-primeras");
+const inputPremioMedio = document.getElementById("sorteo-p-medio");
+const btnPresetsSorteo = document.querySelectorAll(".btn-preset-sorteo");
+
+function fijarPremiosSegunValor(val) {
+    const v = parseInt(val, 10);
+    if (v === 5000) {
+        if (inputPremioMayor) inputPremioMayor.value = "$200.000";
+        if (inputPremioPrimeras) inputPremioPrimeras.value = "$50.000";
+        if (inputPremioMedio) inputPremioMedio.value = "$50.000";
+    } else if (v === 6000) {
+        if (inputPremioMayor) inputPremioMayor.value = "$250.000";
+        if (inputPremioPrimeras) inputPremioPrimeras.value = "$50.000";
+        if (inputPremioMedio) inputPremioMedio.value = "$50.000";
+    } else if (v === 7000) {
+        if (inputPremioMayor) inputPremioMayor.value = "$320.000";
+        if (inputPremioPrimeras) inputPremioPrimeras.value = "$50.000";
+        if (inputPremioMedio) inputPremioMedio.value = "$50.000";
+    } else if (v === 0) {
+        if (inputPremioMayor) inputPremioMayor.value = "$50.000";
+        if (inputPremioPrimeras) inputPremioPrimeras.value = "$0";
+        if (inputPremioMedio) inputPremioMedio.value = "$0";
+    }
+}
+
+if (inputValorNuevoSorteo) {
+    inputValorNuevoSorteo.addEventListener("input", function() {
+        fijarPremiosSegunValor(this.value);
+    });
+}
+
+btnPresetsSorteo.forEach(btn => {
+    btn.addEventListener("click", function() {
+        const val = this.dataset.valor;
+        if (inputValorNuevoSorteo) {
+            inputValorNuevoSorteo.value = val;
+        }
+        if (inputPremioMayor && this.dataset.p1) inputPremioMayor.value = this.dataset.p1;
+        if (inputPremioPrimeras && this.dataset.p2) inputPremioPrimeras.value = this.dataset.p2;
+        if (inputPremioMedio && this.dataset.p3) inputPremioMedio.value = this.dataset.p3;
+
+        btnPresetsSorteo.forEach(b => b.classList.remove("activo"));
+        this.classList.add("activo");
+    });
+});
 
 
 // Abrir el calendario desplegable al hacer clic en cualquier parte del campo de fecha

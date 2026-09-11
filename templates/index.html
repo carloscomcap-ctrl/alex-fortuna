@@ -70,7 +70,7 @@ Consulta | Dinámicas Alex 2027
 
                 <div class="sorteo-card-top">
                     <span class="badge-sorteo-estado activo">🟢 ACTIVO</span>
-                    <span class="sorteo-card-valor">🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}</span>
+                    <span class="sorteo-card-valor">{% if s.valor == 0 %}<span style="color:#c084fc; font-weight:900;">🎁 GRATIS ($0)</span>{% else %}🎟️ ${{ "{:,.0f}".format(s.valor).replace(",", ".") }}{% endif %}</span>
                 </div>
 
                 <h3>🎟️ {{ s.nombre }}</h3>

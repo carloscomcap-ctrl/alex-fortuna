@@ -100,6 +100,114 @@ Consulta | Dinámicas Alex 2027
     {% endif %}
 
 
+    <!-- =================================================
+         MURO OFICIAL DE GANADORES RECIENTES
+    ================================================== -->
+    <section class="muro-ganadores-section">
+        <div class="seccion-titulo-box">
+            <h2>🏆 MURO OFICIAL DE GANADORES</h2>
+            <p>¡En Dinámicas Alex 2027 sí pagamos de inmediato! Conoce a los afortunados ganadores de nuestros sorteos.</p>
+        </div>
+
+        {% if ganadores_recientes %}
+        <div class="muro-ganadores-grid">
+            {% for g in ganadores_recientes %}
+            <div class="ganador-publico-card">
+                <div class="ganador-card-top">
+                    <span class="badge-ganador-categoria">
+                        {% if 'Mayor' in g.categoria %}🥇 MAYOR{% elif 'Primeras' in g.categoria %}🥈 PRIMERAS 2{% else %}🥉 DEL MEDIO{% endif %}
+                    </span>
+                    <span class="ganador-premio-valor">{{ g.premio or '$320.000' }}</span>
+                </div>
+
+                <div class="ganador-cifra-destacada">
+                    <span class="ganador-num-tag">#{{ g.numero }}</span>
+                    {% if g.cifras_sorteo %}
+                    <small class="ganador-cifras-full">Sorteo: {{ g.cifras_sorteo }}</small>
+                    {% endif %}
+                </div>
+
+                <h3 class="ganador-nombre">👤 {{ g.nombre }}</h3>
+
+                <div class="ganador-sorteo-detalles">
+                    <span>🎰 <b>Lotería:</b> {{ g.loteria }}</span>
+                    <span>📅 <b>Fecha:</b> {{ g.fecha }}</span>
+                    <span class="ganador-sorteo-nombre">🎟️ {{ g.sorteo_nombre }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="muro-vacio-box">
+            <span style="font-size: 38px;">🍀</span>
+            <h3>¡Sé el próximo gran ganador de hoy!</h3>
+            <p>Participa en las dinámicas activas y tu número aparecerá aquí publicado en nuestro muro de honor.</p>
+        </div>
+        {% endif %}
+    </section>
+
+
+    <!-- =================================================
+         MEDIOS DE PAGO OFICIALES
+    ================================================== -->
+    {% if medios_pago %}
+    <section class="admin-card medios-pago-card home-medios-pago">
+        <div class="medios-pago-header">
+            <span class="medios-pago-icono">💳</span>
+            <div>
+                <h3>MEDIOS DE PAGO OFICIALES</h3>
+                <p>Transfiere tu boleta de forma segura a nuestras cuentas oficiales autorizadas.</p>
+            </div>
+        </div>
+
+        <div class="medios-pago-grid">
+            {% if medios_pago.nequi %}
+            <div class="medio-pago-item nequi">
+                <div class="medio-info">
+                    <span class="medio-badge nequi">NEQUI</span>
+                    <strong class="medio-numero">{{ medios_pago.nequi }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.nequi }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+
+            {% if medios_pago.daviplata %}
+            <div class="medio-pago-item daviplata">
+                <div class="medio-info">
+                    <span class="medio-badge daviplata">DAVIPLATA</span>
+                    <strong class="medio-numero">{{ medios_pago.daviplata }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.daviplata }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+
+            {% if medios_pago.bancolombia %}
+            <div class="medio-pago-item bancolombia">
+                <div class="medio-info">
+                    <span class="medio-badge bancolombia">BANCOLOMBIA</span>
+                    <strong class="medio-numero">{{ medios_pago.bancolombia }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.bancolombia }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="medios-pago-aviso">
+            💡 <em>Al enviar tu dinero, adjunta el pantallazo al WhatsApp con tu nombre para registrar tu boleta como <b>PAGADA 🟢</b>.</em>
+        </div>
+    </section>
+    {% endif %}
+
+
     <section class="warning">
 
         <h2>⚠️ IMPORTANTE</h2>
@@ -112,5 +220,40 @@ Consulta | Dinámicas Alex 2027
     </section>
 
 </main>
+
+<script>
+// Copiar datos de pago al portapapeles
+function copiarAlPortapapeles(texto, boton) {
+    const limpio = (texto || "").replace(/\s+/g, '');
+    const realizarCopia = () => {
+        const textoOriginal = boton.innerHTML;
+        boton.innerHTML = '✅ ¡Copiado!';
+        boton.classList.add('copiado');
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.classList.remove('copiado');
+        }, 2200);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(limpio).then(realizarCopia).catch(() => {
+            fallbackCopiar(limpio);
+            realizarCopia();
+        });
+    } else {
+        fallbackCopiar(limpio);
+        realizarCopia();
+    }
+}
+
+function fallbackCopiar(texto) {
+    const tempInput = document.createElement("input");
+    tempInput.value = texto;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+}
+</script>
 
 {% endblock %}

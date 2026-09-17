@@ -34,29 +34,17 @@
             <span>⏰ <b>Jornada:</b> {{ sorteo.horario }}</span>
         </div>
 
-        <!-- TARJETAS DE PREMIOS -->
-        <div class="tabla-premios-grid">
-            <div class="premio-card mayor">
-                <span class="premio-medalla">🥇</span>
-                <div class="premio-info">
-                    <small>PREMIO MAYOR (Últimas 2)</small>
-                    <strong>{{ sorteo.premio_mayor }}</strong>
-                </div>
-            </div>
-            <div class="premio-card">
-                <span class="premio-medalla">🥈</span>
-                <div class="premio-info">
-                    <small>PREMIO ANTICIPADO (Primeras 2)</small>
-                    <strong>{{ sorteo.premio_primeras }}</strong>
-                </div>
-            </div>
-            <div class="premio-card">
-                <span class="premio-medalla">🥉</span>
-                <div class="premio-info">
-                    <small>PREMIO SECUNDARIO (Del Medio)</small>
-                    <strong>{{ sorteo.premio_medio }}</strong>
-                </div>
-            </div>
+        <!-- BOTONES DE ACCESO RÁPIDO -->
+        <div class="sorteo-accesos-rapidos">
+            <a href="#seccion-premios" class="btn-acceso-rapido">
+                🎁 Tabla de Premios
+            </a>
+            <a href="#seccion-participantes" class="btn-acceso-rapido destacado">
+                📋 Lista de Pagados ({{ pagados }})
+            </a>
+            <a href="#seccion-ganadores" class="btn-acceso-rapido oro">
+                🏆 Ver Ganadores
+            </a>
         </div>
 
         <!-- BARRA DE ESTADÍSTICAS Y PROGRESO -->
@@ -142,6 +130,256 @@
     </section>
 
 
+    <!-- =====================================================
+         TABLA OFICIAL DE PREMIOS
+    ====================================================== -->
+    <section class="admin-card seccion-premios-card" id="seccion-premios">
+        <div class="seccion-bloque-header">
+            <span class="icono-bloque">🎁</span>
+            <div>
+                <h2>TABLA OFICIAL DE PREMIOS</h2>
+                <p class="hint">Juega oficialmente con el resultado de la <b>{{ sorteo.loteria }}</b> del <b>{{ sorteo.fecha }}</b> ({{ sorteo.horario }}).</p>
+            </div>
+        </div>
+
+        <div class="tabla-premios-grid">
+            <div class="premio-card mayor">
+                <span class="premio-medalla">🥇</span>
+                <div class="premio-info">
+                    <small>PREMIO MAYOR (Últimas 2 Cifras)</small>
+                    <strong>{{ sorteo.premio_mayor }}</strong>
+                    <span class="premio-detalle-sub">Ganas con las últimas 2 cifras del premio mayor</span>
+                </div>
+            </div>
+            <div class="premio-card">
+                <span class="premio-medalla">🥈</span>
+                <div class="premio-info">
+                    <small>PREMIO ANTICIPADO (Primeras 2 Cifras)</small>
+                    <strong>{{ sorteo.premio_primeras }}</strong>
+                    <span class="premio-detalle-sub">Ganas con las primeras 2 cifras del premio mayor</span>
+                </div>
+            </div>
+            <div class="premio-card">
+                <span class="premio-medalla">🥉</span>
+                <div class="premio-info">
+                    <small>PREMIO SECUNDARIO (Cifras del Medio)</small>
+                    <strong>{{ sorteo.premio_medio }}</strong>
+                    <span class="premio-detalle-sub">Ganas con las 2 cifras centrales del resultado</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         LISTA OFICIAL DE PARTICIPANTES Y PERSONAS PAGADAS
+    ====================================================== -->
+    <section class="admin-card seccion-participantes-card" id="seccion-participantes">
+
+        <div class="participantes-header-box">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 24px;">📋</span>
+                    <h2>LISTA OFICIAL DE PARTICIPANTES</h2>
+                </div>
+                <p class="hint">
+                    Lista oficial de compradores y boletas registradas para el sorteo. Los números de WhatsApp están protegidos (***) por seguridad.
+                </p>
+            </div>
+
+            <!-- BOTÓN COPIAR PARA WHATSAPP -->
+            <button type="button" class="btn-copiar-wa-lista" id="btn-copiar-lista-wa" onclick="copiarListaWhatsApp()">
+                📲 Copiar Lista para WhatsApp
+            </button>
+        </div>
+
+        <!-- FILTROS Y BUSCADOR EN VIVO -->
+        <div class="participantes-toolbar">
+            <div class="participantes-pills">
+                <button type="button" class="pill-filtro activo" id="pill-solo-pagados" onclick="filtrarParticipantes('PAGADO')">
+                    🟢 Solo Pagados (<span id="count-pagados">{{ pagados }}</span>)
+                </button>
+                <button type="button" class="pill-filtro" id="pill-todos-participantes" onclick="filtrarParticipantes('TODOS')">
+                    👥 Todos los Jugadores (<span id="count-todos">{{ participantes|length }}</span>)
+                </button>
+            </div>
+
+            <div class="participantes-buscador">
+                <span class="icono-buscar">🔍</span>
+                <input type="text" id="input-buscar-participante" placeholder="Buscar por número (#27) o nombre..." onkeyup="buscarEnLista()">
+            </div>
+        </div>
+
+        <!-- TABLA RESPONSIVA DE PARTICIPANTES -->
+        <div class="tabla-participantes-wrap">
+            {% if participantes %}
+            <table class="tabla-participantes-oficial" id="tabla-participantes">
+                <thead>
+                    <tr>
+                        <th style="width: 90px; text-align: center;"># Boleta</th>
+                        <th>Nombre del Participante</th>
+                        <th>WhatsApp (Protegido)</th>
+                        <th style="text-align: center;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-participantes">
+                    {% for p in participantes %}
+                    <tr class="fila-participante {% if p.estado == 'PAGADO' %}fila-pagado{% else %}fila-apartado{% endif %}"
+                        data-estado="{{ p.estado }}"
+                        data-numero="{{ p.numero }}"
+                        data-nombre="{{ p.cliente|lower }}"
+                        data-telefono="{{ p.telefono_oculto }}">
+                        <td style="text-align: center;">
+                            <span class="badge-boleta-num {% if p.estado == 'PAGADO' %}pagado{% endif %}">
+                                #{{ p.numero }}
+                            </span>
+                        </td>
+                        <td class="col-nombre">
+                            <strong class="participante-nombre">{{ p.cliente }}</strong>
+                        </td>
+                        <td class="col-whatsapp">
+                            <span class="participante-wa">📱 {{ p.telefono_oculto }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            {% if p.estado == 'PAGADO' %}
+                            <span class="badge-estado-pago pagado">🟢 PAGADO</span>
+                            {% else %}
+                            <span class="badge-estado-pago pendiente">🟡 APARTADO</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div id="no-coincidencias" class="mensaje-vacio-lista" style="display: none;">
+                🔎 No se encontraron participantes con ese criterio de búsqueda.
+            </div>
+            {% else %}
+            <div class="mensaje-vacio-lista">
+                🎟️ Aún no hay boletas apartadas ni pagadas en este sorteo. ¡Sé el primero en apartar tu número arriba!
+            </div>
+            {% endif %}
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SECCIÓN / RESULTADOS DE GANADORES DEL SORTEO
+    ====================================================== -->
+    <section class="admin-card seccion-ganadores-card" id="seccion-ganadores">
+
+        <div class="seccion-bloque-header">
+            <span class="icono-bloque">🏆</span>
+            <div>
+                <h2>GANADORES DEL SORTEO</h2>
+                <p class="hint">Resultados oficiales verificados con la lotería correspondiente.</p>
+            </div>
+        </div>
+
+        {% if ganadores_sorteo %}
+        <div class="ganadores-sorteo-grid">
+            {% for g in ganadores_sorteo %}
+            <div class="ganador-tarjeta-sorteo">
+                <div class="ganador-tarjeta-top">
+                    <span class="badge-ganador-categoria">
+                        {% if 'Mayor' in g.categoria %}🥇 PREMIO MAYOR{% elif 'Primeras' in g.categoria %}🥈 PRIMERAS 2{% else %}🥉 DEL MEDIO{% endif %}
+                    </span>
+                    <strong class="ganador-tarjeta-premio">{{ g.premio or '$320.000' }}</strong>
+                </div>
+
+                <div class="ganador-tarjeta-cuerpo">
+                    <span class="badge-ganador-numero">#{{ g.numero }}</span>
+                    <div>
+                        <h3 class="ganador-tarjeta-nombre">👤 {{ g.nombre }}</h3>
+                        <small class="ganador-tarjeta-sub">🎰 {{ g.loteria }} • 📅 {{ g.fecha }}</small>
+                    </div>
+                </div>
+
+                {% if g.cifras_sorteo %}
+                <div class="ganador-cifras-badge">
+                    Resultado Lotería: <b>{{ g.cifras_sorteo }}</b>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="ganadores-pendiente-box">
+            <span style="font-size: 36px;">⏳</span>
+            <h3>Sorteo en Proceso</h3>
+            <p>
+                Este sorteo juega con la <b>{{ sorteo.loteria }}</b> ({{ sorteo.horario }}).
+                Tan pronto la lotería publique los 4 dígitos ganadores, los afortunados aparecerán registrados aquí.
+            </p>
+            <a href="{{ url_for('home') }}#muro-ganadores" class="btn-ver-muro-general">
+                🌟 Ver Muro de Ganadores Anteriores ➔
+            </a>
+        </div>
+        {% endif %}
+
+    </section>
+
+
+    <!-- MEDIOS DE PAGO OFICIALES (NEQUI / DAVIPLATA / BANCOLOMBIA) -->
+    {% if sorteo.valor > 0 and medios_pago %}
+    <section class="admin-card medios-pago-card">
+        <div class="medios-pago-header">
+            <span class="medios-pago-icono">💳</span>
+            <div>
+                <h3>MEDIOS DE PAGO OFICIALES</h3>
+                <p>Transfiere el valor de tu boleta y envía el comprobante por WhatsApp para confirmarla.</p>
+            </div>
+        </div>
+
+        <div class="medios-pago-grid">
+            {% if medios_pago.nequi %}
+            <div class="medio-pago-item nequi">
+                <div class="medio-info">
+                    <span class="medio-badge nequi">NEQUI</span>
+                    <strong class="medio-numero">{{ medios_pago.nequi }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.nequi }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+
+            {% if medios_pago.daviplata %}
+            <div class="medio-pago-item daviplata">
+                <div class="medio-info">
+                    <span class="medio-badge daviplata">DAVIPLATA</span>
+                    <strong class="medio-numero">{{ medios_pago.daviplata }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.daviplata }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+
+            {% if medios_pago.bancolombia %}
+            <div class="medio-pago-item bancolombia">
+                <div class="medio-info">
+                    <span class="medio-badge bancolombia">BANCOLOMBIA</span>
+                    <strong class="medio-numero">{{ medios_pago.bancolombia }}</strong>
+                    <small>Titular: {{ medios_pago.titular }}</small>
+                </div>
+                <button type="button" class="btn-copiar-pago" onclick="copiarAlPortapapeles('{{ medios_pago.bancolombia }}', this)">
+                    📋 Copiar
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="medios-pago-aviso">
+            💡 <em>Al transferir, recuerda poner en el concepto o comprobante tu <b>Nombre</b> y el <b>Número que apartaste</b>.</em>
+        </div>
+    </section>
+    {% endif %}
+
+
     <!-- ACCIONES INFERIORES -->
     <section class="acciones-inferiores-tabla">
         <a href="https://api.whatsapp.com/send?text=🔥%20*¡TABLA%20OFICIAL%20DE%20NÚMEROS%20-%20DINÁMICAS%20ALEX%202027!*%20🍀%0A🎟️%20*{{ sorteo.nombre }}*%20({{ sorteo.loteria }})%0A💰%20Valor%20Boleta:%20${{ "{:,.0f}".format(sorteo.valor).replace(",", ".") }}%0A🏆%20Premio%20Mayor:%20{{ sorteo.premio_mayor }}%0A👉%20*Mira%20los%20números%20disponibles%20aquí:*%20" 
@@ -162,6 +400,185 @@
 </main>
 
 <script>
+// Datos del sorteo para generar texto de WhatsApp
+const infoSorteo = {
+    nombre: "{{ sorteo.nombre }}",
+    loteria: "{{ sorteo.loteria }}",
+    fecha: "{{ sorteo.fecha }}",
+    horario: "{{ sorteo.horario }}",
+    premioMayor: "{{ sorteo.premio_mayor }}",
+    premioPrimeras: "{{ sorteo.premio_primeras }}",
+    premioMedio: "{{ sorteo.premio_medio }}",
+    valor: "{{ '{:,.0f}'.format(sorteo.valor).replace(',', '.') }}",
+    pagadosTotal: {{ pagados }},
+    url: window.location.href
+};
+
+let filtroActual = 'PAGADO'; // Iniciar mostrando solo pagados
+
+function filtrarParticipantes(tipo) {
+    filtroActual = tipo;
+    const btnPagados = document.getElementById('pill-solo-pagados');
+    const btnTodos = document.getElementById('pill-todos-participantes');
+
+    if (btnPagados && btnTodos) {
+        if (tipo === 'PAGADO') {
+            btnPagados.classList.add('activo');
+            btnTodos.classList.remove('activo');
+        } else {
+            btnTodos.classList.add('activo');
+            btnPagados.classList.remove('activo');
+        }
+    }
+
+    aplicarFiltros();
+}
+
+function buscarEnLista() {
+    aplicarFiltros();
+}
+
+function aplicarFiltros() {
+    const input = document.getElementById('input-buscar-participante');
+    const textoBusqueda = input ? (input.value || '').toLowerCase().trim() : '';
+    const filas = document.querySelectorAll('.fila-participante');
+    let visibles = 0;
+
+    filas.forEach(fila => {
+        const estado = fila.getAttribute('data-estado');
+        const numero = fila.getAttribute('data-numero') || '';
+        const nombre = (fila.getAttribute('data-nombre') || '').toLowerCase();
+        const telefono = (fila.getAttribute('data-telefono') || '').toLowerCase();
+
+        // Filtro de estado
+        const pasaEstado = (filtroActual === 'TODOS') || (estado === 'PAGADO');
+
+        // Filtro de búsqueda
+        const numLimpio = textoBusqueda.replace('#', '');
+        const pasaBusqueda = !textoBusqueda || 
+            numero.includes(numLimpio) || 
+            nombre.includes(textoBusqueda) || 
+            telefono.includes(textoBusqueda);
+
+        if (pasaEstado && pasaBusqueda) {
+            fila.style.display = '';
+            visibles++;
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+
+    const noMatches = document.getElementById('no-coincidencias');
+    if (noMatches) {
+        noMatches.style.display = (visibles === 0 && filas.length > 0) ? 'block' : 'none';
+    }
+}
+
+// Iniciar con el filtro de pagados
+document.addEventListener('DOMContentLoaded', () => {
+    filtrarParticipantes('PAGADO');
+});
+
+// Función para copiar la lista de participantes lista para WhatsApp
+function copiarListaWhatsApp() {
+    const filas = document.querySelectorAll('.fila-participante');
+    let lineas = [];
+    let contadorPagados = 0;
+
+    filas.forEach(fila => {
+        const estado = fila.getAttribute('data-estado');
+        const numero = fila.getAttribute('data-numero');
+        const nombreEl = fila.querySelector('.participante-nombre');
+        const nombre = nombreEl ? nombreEl.innerText.trim() : 'Participante';
+        const telefonoEl = fila.querySelector('.participante-wa');
+        const telefono = telefonoEl ? telefonoEl.innerText.replace('📱', '').trim() : '';
+
+        if (estado === 'PAGADO') {
+            contadorPagados++;
+            lineas.push(`🟢 *#${numero}* - ${nombre} (${telefono})`);
+        }
+    });
+
+    let mensaje = `🔥 *DINÁMICAS ALEX 2027* 🍀\n`;
+    mensaje += `📋 *LISTA OFICIAL DE BOLETAS PAGADAS*\n`;
+    mensaje += `🎟️ *${infoSorteo.nombre}*\n`;
+    mensaje += `🎰 *Lotería:* ${infoSorteo.loteria} | 📅 *Fecha:* ${infoSorteo.fecha} (${infoSorteo.horario})\n`;
+    mensaje += `🏆 *Premio Mayor:* ${infoSorteo.premioMayor}\n`;
+    mensaje += `🥈 *Anticipado:* ${infoSorteo.premioPrimeras} | 🥉 *Medio:* ${infoSorteo.premioMedio}\n`;
+    mensaje += `----------------------------------------\n`;
+
+    if (lineas.length > 0) {
+        mensaje += lineas.join('\n') + `\n`;
+    } else {
+        mensaje += `_Aún no hay números confirmados como pagados._\n`;
+    }
+
+    mensaje += `----------------------------------------\n`;
+    mensaje += `📊 *Total Pagados:* ${contadorPagados} boletas\n`;
+    mensaje += `👉 *Verifica tu número en la tabla en vivo:* ${window.location.href}\n\n`;
+    mensaje += `¡Muchos éxitos y bendiciones a todos los participantes! 🤞💰✨`;
+
+    const boton = document.getElementById('btn-copiar-lista-wa');
+    
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(mensaje).then(() => {
+            mostrarCopiadoExitoso(boton);
+        }).catch(() => {
+            fallbackCopiar(mensaje);
+            mostrarCopiadoExitoso(boton);
+        });
+    } else {
+        fallbackCopiar(mensaje);
+        mostrarCopiadoExitoso(boton);
+    }
+}
+
+function mostrarCopiadoExitoso(boton) {
+    if (!boton) return;
+    const original = boton.innerHTML;
+    boton.innerHTML = '✅ ¡Lista Copiada!';
+    boton.style.background = '#22c55e';
+    boton.style.color = '#ffffff';
+    setTimeout(() => {
+        boton.innerHTML = original;
+        boton.style.background = '';
+        boton.style.color = '';
+    }, 2800);
+}
+
+// Copiar datos de pago al portapapeles
+function copiarAlPortapapeles(texto, boton) {
+    const limpio = (texto || "").replace(/\s+/g, '');
+    const realizarCopia = () => {
+        const textoOriginal = boton.innerHTML;
+        boton.innerHTML = '✅ ¡Copiado!';
+        boton.classList.add('copiado');
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.classList.remove('copiado');
+        }, 2200);
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(limpio).then(realizarCopia).catch(() => {
+            fallbackCopiar(limpio);
+            realizarCopia();
+        });
+    } else {
+        fallbackCopiar(limpio);
+        realizarCopia();
+    }
+}
+
+function fallbackCopiar(texto) {
+    const tempInput = document.createElement("textarea");
+    tempInput.value = texto;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+}
+
 // Ajustar dinámicamente URL al compartir
 const btnCompartir = document.getElementById("btn-compartir-tabla");
 if (btnCompartir) {
@@ -169,7 +586,7 @@ if (btnCompartir) {
     btnCompartir.href += currentUrl;
 }
 
-// Filtro de Solo Disponibles
+// Filtro de Solo Disponibles del Tablero
 const btnTodos = document.getElementById("filtro-todos-btn");
 const btnLibres = document.getElementById("filtro-libres-btn");
 const casillas = document.querySelectorAll(".casilla-num");

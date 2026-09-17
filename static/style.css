@@ -2604,6 +2604,425 @@ footer {
     border-radius: 20px;
 }
 
+/* =========================================================
+   ACCESOS RÁPIDOS EN HERO DEL SORTEO
+   ========================================================= */
+.sorteo-accesos-rapidos {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 20px 0 10px 0;
+}
+
+.btn-acceso-rapido {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #101c2c;
+    border: 1px solid rgba(245, 197, 66, 0.25);
+    color: #e2e8f0;
+    padding: 9px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.btn-acceso-rapido:hover {
+    background: #1b2d47;
+    border-color: var(--dorado);
+    color: var(--dorado);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(245, 197, 66, 0.2);
+}
+
+.btn-acceso-rapido.destacado {
+    background: linear-gradient(135deg, #14532d, #052e16);
+    border-color: #22c55e;
+    color: #86efac;
+}
+
+.btn-acceso-rapido.destacado:hover {
+    background: #166534;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
+}
+
+.btn-acceso-rapido.oro {
+    background: linear-gradient(135deg, rgba(245, 197, 66, 0.2), rgba(220, 169, 0, 0.1));
+    border-color: var(--dorado);
+    color: var(--dorado);
+}
+
+.btn-acceso-rapido.oro:hover {
+    background: var(--dorado);
+    color: #05070c;
+    font-weight: 800;
+}
+
+/* =========================================================
+   CABECERAS DE SECCIONES DE BLOQUE
+   ========================================================= */
+.seccion-bloque-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.icono-bloque {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.seccion-bloque-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--dorado);
+    letter-spacing: 0.5px;
+}
+
+.premio-detalle-sub {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+    font-weight: normal;
+}
+
+/* =========================================================
+   LISTA OFICIAL DE PARTICIPANTES Y PAGADOS
+   ========================================================= */
+.seccion-participantes-card {
+    background: linear-gradient(180deg, #09101b, #060b13) !important;
+    border: 1px solid rgba(245, 197, 66, 0.2) !important;
+}
+
+.participantes-header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.participantes-header-box h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--dorado);
+}
+
+.btn-copiar-wa-lista {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-copiar-wa-lista:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
+}
+
+.participantes-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.participantes-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pill-filtro {
+    background: #111d2e;
+    color: #94a3b8;
+    border: 1px solid #23344d;
+    border-radius: 20px;
+    padding: 7px 15px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pill-filtro:hover {
+    border-color: var(--dorado);
+    color: #ffffff;
+}
+
+.pill-filtro.activo {
+    background: linear-gradient(135deg, rgba(245, 197, 66, 0.25), rgba(220, 169, 0, 0.15));
+    border-color: var(--dorado);
+    color: var(--dorado);
+    box-shadow: 0 0 10px rgba(245, 197, 66, 0.2);
+}
+
+.participantes-buscador {
+    position: relative;
+    min-width: 260px;
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.participantes-buscador .icono-buscar {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.participantes-buscador input {
+    width: 100%;
+    background: #0d1726;
+    border: 1px solid #23344d;
+    border-radius: 8px;
+    padding: 9px 12px 9px 36px;
+    color: #ffffff;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.participantes-buscador input:focus {
+    border-color: var(--dorado);
+}
+
+.tabla-participantes-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #1a283e;
+}
+
+.tabla-participantes-oficial {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+}
+
+.tabla-participantes-oficial thead th {
+    background: #101c2d;
+    color: var(--dorado);
+    font-weight: 800;
+    padding: 12px 16px;
+    border-bottom: 1px solid #23344d;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-participantes-oficial tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s ease;
+}
+
+.tabla-participantes-oficial tbody tr:hover {
+    background: rgba(245, 197, 66, 0.04);
+}
+
+.tabla-participantes-oficial td {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.badge-boleta-num {
+    display: inline-block;
+    background: #1a293d;
+    color: var(--dorado);
+    font-family: monospace, monospace;
+    font-size: 15px;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(245, 197, 66, 0.3);
+}
+
+.badge-boleta-num.pagado {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+.participante-nombre {
+    color: #f8fafc;
+    font-size: 14px;
+}
+
+.participante-wa {
+    color: #94a3b8;
+    font-family: monospace, monospace;
+    font-size: 13px;
+    background: #0a111c;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #1e293b;
+}
+
+.badge-estado-pago {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.badge-estado-pago.pagado {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 1px solid #22c55e;
+}
+
+.badge-estado-pago.pendiente {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid #f59e0b;
+}
+
+.mensaje-vacio-lista {
+    padding: 30px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+    background: #080f1a;
+}
+
+/* =========================================================
+   GANADORES DEL SORTEO (EN TABLA.HTML)
+   ========================================================= */
+.seccion-ganadores-card {
+    background: linear-gradient(180deg, #0d1624, #080d17) !important;
+}
+
+.ganadores-sorteo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.ganador-tarjeta-sorteo {
+    background: #070c14;
+    border: 1px solid var(--dorado);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ganador-tarjeta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(245, 197, 66, 0.2);
+}
+
+.ganador-tarjeta-premio {
+    color: var(--dorado);
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.ganador-tarjeta-cuerpo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.badge-ganador-numero {
+    font-size: 26px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--dorado), #b48500);
+    color: #05070c;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-family: monospace, monospace;
+}
+
+.ganador-tarjeta-nombre {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.ganador-tarjeta-sub {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.ganador-cifras-badge {
+    background: #111d2e;
+    color: #cbd5e1;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #23344d;
+    text-align: center;
+}
+
+.ganadores-pendiente-box {
+    text-align: center;
+    padding: 30px 20px;
+    background: #070d17;
+    border-radius: 12px;
+    border: 1px dashed rgba(245, 197, 66, 0.25);
+}
+
+.ganadores-pendiente-box h3 {
+    color: var(--dorado);
+    margin: 10px 0 6px 0;
+    font-size: 17px;
+}
+
+.ganadores-pendiente-box p {
+    color: #94a3b8;
+    font-size: 13px;
+    max-width: 500px;
+    margin: 0 auto 16px auto;
+}
+
+.btn-ver-muro-general {
+    display: inline-block;
+    background: #111e30;
+    color: var(--dorado);
+    border: 1px solid var(--dorado);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-ver-muro-general:hover {
+    background: var(--dorado);
+    color: #05070c;
+}
+
 
 
 

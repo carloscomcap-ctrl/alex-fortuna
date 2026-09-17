@@ -269,6 +269,44 @@
     </section>
 
 
+    <!-- =================================================
+         CONFIGURACIÓN DE MEDIOS DE PAGO (NEQUI / DAVIPLATA / BANCOLOMBIA)
+    ================================================== -->
+    <section class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+                <h2>💳 Medios de Pago Oficiales</h2>
+                <p class="hint">Configura tus cuentas de Nequi, Daviplata y Bancolombia. Los clientes verán estos datos con botón de copiado en 1 clic en la página y tablas.</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('guardar_ajustes') }}">
+            <div class="form-grid">
+                <div>
+                    <label class="label-campo">📱 Número Nequi</label>
+                    <input type="text" name="nequi" value="{{ medios_pago.nequi }}" placeholder="Ej: 310 123 4567" required>
+                </div>
+                <div>
+                    <label class="label-campo">📱 Número Daviplata</label>
+                    <input type="text" name="daviplata" value="{{ medios_pago.daviplata }}" placeholder="Ej: 310 123 4567" required>
+                </div>
+                <div>
+                    <label class="label-campo">🏦 Bancolombia (Opcional)</label>
+                    <input type="text" name="bancolombia" value="{{ medios_pago.bancolombia }}" placeholder="Ej: Ahorros 123-456789-00 o A la mano">
+                </div>
+                <div>
+                    <label class="label-campo">👤 Nombre del Titular</label>
+                    <input type="text" name="titular" value="{{ medios_pago.titular }}" placeholder="Ej: Alexander García" required>
+                </div>
+            </div>
+            <div style="margin-top: 15px;">
+                <button type="submit" class="btn-oro">
+                    💾 GUARDAR MEDIOS DE PAGO
+                </button>
+            </div>
+        </form>
+    </section>
+
 
     <!-- =================================================
          REGISTRAR VENTA
@@ -628,11 +666,67 @@
     </section>
 
 
+    <!-- =================================================
+         MURO DE GANADORES PUBLICADOS (GESTIÓN)
+    ================================================== -->
+    <section class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+            <div>
+                <h2>🏆 Muro de Ganadores Publicados en la Web</h2>
+                <p class="hint">Estos registros son los que aparecen en la página de inicio. Puedes publicar nuevos ganadores con 1 clic desde el comprobador de arriba o eliminarlos aquí.</p>
+            </div>
+        </div>
+
+        {% if ganadores_muro %}
+        <div class="tabla-scroll">
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Número</th>
+                        <th>Ganador</th>
+                        <th>Premio</th>
+                        <th>Lotería</th>
+                        <th>Fecha</th>
+                        <th>Dinámica</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gm in ganadores_muro %}
+                    <tr>
+                        <td>
+                            <span class="badge-ganador-categoria" style="font-size: 11px;">
+                                {{ gm.categoria }}
+                            </span>
+                        </td>
+                        <td><strong style="color: var(--dorado); font-size: 16px;">#{{ gm.numero }}</strong></td>
+                        <td><b>{{ gm.nombre }}</b></td>
+                        <td><span style="color: #86efac; font-weight: bold;">{{ gm.premio }}</span></td>
+                        <td>{{ gm.loteria }}</td>
+                        <td>{{ gm.fecha }}</td>
+                        <td><small>{{ gm.sorteo_nombre }}</small></td>
+                        <td>
+                            <form method="POST" action="{{ url_for('eliminar_ganador_muro', id=gm.id) }}" style="display:inline;" onsubmit="return confirm('¿Retirar a este ganador del muro público?');">
+                                <button type="submit" class="btn-admin-eliminar" title="Retirar del muro">🗑️ Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="sin-resultados" style="padding: 20px;">
+            <p style="margin: 0;">No hay ganadores publicados en el muro todavía. Comprueba un sorteo en el <b>Liquidador</b> de arriba y haz clic en <b>🏆 Publicar en Muro</b>.</p>
+        </div>
+        {% endif %}
+    </section>
+
 
     <!-- =================================================
          GENERADOR DE ANUNCIOS PARA WHATSAPP
     ================================================== -->
-
     <section class="admin-card">
 
         <h2>
@@ -1335,15 +1429,33 @@ function mostrarResultadoLiquidacion(data) {
                     ? `<span class="estado pagado" style="font-size:11px; padding:3px 7px;">🟢 PAGADO</span>`
                     : `<span class="estado pendiente" style="font-size:11px; padding:3px 7px;">⚠️ PENDIENTE</span>`;
 
+                const premioEstimado = g.premio_estimado || "$50.000";
+                const sorteoNombre = g.sorteo_nombre || "Dinámica Oficial";
+
                 return `
                     <div class="ganador-item">
                         <div class="ganador-info">
                             <strong>👤 ${g.nombre}</strong>
                             <span>📱 ${g.telefono} &nbsp; ${estadoBadge}</span>
+                            <small style="display:block; color:var(--dorado); margin-top:2px;">💰 Premio: ${premioEstimado}</small>
                         </div>
-                        <a href="${waUrl}" target="_blank" class="btn-felicitar-wa">
-                            🎉 Felicitar por WA
-                        </a>
+                        <div class="ganador-item-botones">
+                            <a href="${waUrl}" target="_blank" class="btn-felicitar-wa">
+                                🎉 Felicitar por WA
+                            </a>
+                            <button type="button" 
+                                    class="btn-publicar-muro" 
+                                    data-nombre="${g.nombre}" 
+                                    data-numero="${g.numero}" 
+                                    data-categoria="${titulo}" 
+                                    data-premio="${premioEstimado}" 
+                                    data-sorteo="${sorteoNombre}" 
+                                    data-loteria="${data.loteria || g.loteria || ''}" 
+                                    data-fecha="${data.fecha || g.fecha || ''}" 
+                                    data-cifras="${data.cifras}">
+                                🏆 Publicar en Muro
+                            </button>
+                        </div>
                     </div>
                 `;
             }).join("");
@@ -1379,6 +1491,57 @@ function mostrarResultadoLiquidacion(data) {
     liqResultadoBox.style.display = "block";
     liqResultadoBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
+
+// Evento delegado para publicar ganador en el muro
+document.addEventListener("click", async function(e) {
+    const btnPub = e.target.closest(".btn-publicar-muro");
+    if (!btnPub) return;
+
+    const nombre = btnPub.dataset.nombre;
+    const numero = btnPub.dataset.numero;
+    const categoria = btnPub.dataset.categoria;
+    const premio = btnPub.dataset.premio;
+    const sorteo_nombre = btnPub.dataset.sorteo;
+    const loteria = btnPub.dataset.loteria;
+    const fecha = btnPub.dataset.fecha;
+    const cifras_sorteo = btnPub.dataset.cifras;
+
+    const textoOriginal = btnPub.innerHTML;
+    btnPub.disabled = true;
+    btnPub.innerHTML = "⏳ Publicando...";
+
+    try {
+        const resp = await fetch("/admin/ganadores/publicar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                nombre,
+                numero,
+                categoria,
+                premio,
+                sorteo_nombre,
+                loteria,
+                fecha,
+                cifras_sorteo
+            })
+        });
+
+        const res = await resp.json();
+        if (!resp.ok) {
+            throw new Error(res.error || "Error al publicar");
+        }
+
+        btnPub.innerHTML = "✅ ¡En el Muro!";
+        btnPub.classList.add("publicado");
+        btnPub.disabled = true;
+        alert(res.mensaje || "¡Ganador publicado con éxito en el Muro Oficial!");
+
+    } catch (err) {
+        alert("⚠️ No se pudo publicar: " + err.message);
+        btnPub.disabled = false;
+        btnPub.innerHTML = textoOriginal;
+    }
+});
 
 
 /* =========================================================

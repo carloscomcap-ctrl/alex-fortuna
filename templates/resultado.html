@@ -11,6 +11,8 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+    <!-- html2canvas para descarga de boletas digitales como imagen -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -204,15 +206,21 @@
                 </div>
 
 
-                <!-- COMPARTIR BOLETA -->
+                <!-- ACCIONES DE LA BOLETA (COMPARTIR Y DESCARGAR) -->
                 <div class="boleta-acciones-cliente">
 
                     <a href="https://api.whatsapp.com/send?text=🎟️%20*BOLETA%20OFICIAL%20-%20DINÁMICAS%20ALEX%2027*%20🍀%0A👤%20*Cliente:*%20{{ venta.nombre }}%0A🔢%20*Número:*%20%23{{ venta.numero }}%0A🎰%20*Lotería:*%20{{ venta.loteria }}%0A📅%20*Fecha:*%20{{ venta.fecha }}%0A✅%20*Estado:*%20{{ venta.estado }}%0A🏆%20*Juega%20por:*%20Últimas%202,%20Primeras%202%20y%20Cifras%20del%20medio.%0A🔥%20¡Con%20toda%20la%20energía%20ganadora!%20💰✨"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="btn-compartir-wa">
-                        📲 Compartir mi boleta por WhatsApp
+                        📲 Compartir por WhatsApp
                     </a>
+
+                    <button type="button"
+                            class="btn-descargar-boleta-img"
+                            onclick="descargarBoletaComoImagen(this, '{{ venta.numero }}', '{{ venta.nombre }}')">
+                        📸 Descargar Boleta en Imagen (PNG)
+                    </button>
 
                 </div>
 
@@ -259,3 +267,63 @@
 
     <a href="{{ url_for('home') }}"
        class="btn-volver">
+        ⬅️ Volver al inicio
+    </a>
+
+</div>
+
+<script>
+async function descargarBoletaComoImagen(boton, numero, nombre) {
+    const boleta = boton.closest('.boleta');
+    if (!boleta) return;
+
+    if (typeof html2canvas === 'undefined') {
+        alert('Cargando motor de imagen, por favor intenta en un segundo.');
+        return;
+    }
+
+    const textoOriginal = boton.innerHTML;
+    boton.innerHTML = '⏳ Generando imagen PNG...';
+    boton.disabled = true;
+
+    try {
+        // Ocultar temporalmente los botones de acción para que la captura de la boleta sea 100% limpia y estética
+        const acciones = boleta.querySelector('.boleta-acciones-cliente');
+        if (acciones) acciones.style.display = 'none';
+
+        const canvas = await html2canvas(boleta, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#070f1e',
+            logging: false
+        });
+
+        if (acciones) acciones.style.display = 'flex';
+
+        const safeNombre = (nombre || "cliente").replace(/[^a-zA-Z0-9]/g, "_");
+        const enlace = document.createElement('a');
+        enlace.download = `boleta_alex2027_num_${numero}_${safeNombre}.png`;
+        enlace.href = canvas.toDataURL('image/png');
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+
+        boton.innerHTML = '✅ ¡Imagen descargada!';
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.disabled = false;
+        }, 2200);
+
+    } catch (err) {
+        console.error('Error al generar imagen de la boleta:', err);
+        alert('No se pudo generar la imagen. Puedes tomar una captura de pantalla.');
+        const acciones = boleta.querySelector('.boleta-acciones-cliente');
+        if (acciones) acciones.style.display = 'flex';
+        boton.innerHTML = textoOriginal;
+        boton.disabled = false;
+    }
+}
+</script>
+
+</body>
+</html>

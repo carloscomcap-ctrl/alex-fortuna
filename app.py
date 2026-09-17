@@ -190,6 +190,88 @@ class Venta(db.Model):
 
 
 # =========================================================
+# MODELO DE AJUSTES DEL SISTEMA (MEDIOS DE PAGO)
+# =========================================================
+
+class Ajuste(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    clave = db.Column(
+        db.String(50),
+        unique=True,
+        nullable=False
+    )
+
+    valor = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+
+# =========================================================
+# MODELO DE GANADORES HISTÓRICOS (MURO DE GANADORES)
+# =========================================================
+
+class GanadorHistorico(db.Model):
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    sorteo_nombre = db.Column(
+        db.String(120),
+        nullable=False,
+        default="Dinámica Oficial"
+    )
+
+    loteria = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    fecha = db.Column(
+        db.String(30),
+        nullable=False
+    )
+
+    numero = db.Column(
+        db.String(10),
+        nullable=False
+    )
+
+    nombre = db.Column(
+        db.String(120),
+        nullable=False
+    )
+
+    categoria = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    premio = db.Column(
+        db.String(50),
+        nullable=True,
+        default="$320.000"
+    )
+
+    cifras_sorteo = db.Column(
+        db.String(10),
+        nullable=True
+    )
+
+    creado_en = db.Column(
+        db.DateTime,
+        default=datetime.utcnow
+    )
+
+
+# =========================================================
 # CREAR TABLAS Y COMPATIBILIDAD CON BASE EXISTENTE
 # =========================================================
 
@@ -256,8 +338,57 @@ def clean_phone(value):
     )
 
 
+def mask_phone(value):
+    """
+    Oculta los últimos dígitos del teléfono con asteriscos para proteger la privacidad.
+    Ejemplo:
+    3101234567 -> 310 123 ****
+    573101234567 -> 310 123 ****
+    """
+    if not value:
+        return ""
+    digits = re.sub(r"\D", "", str(value))
+    if digits.startswith("57") and len(digits) == 12:
+        digits = digits[2:]
+    
+    if len(digits) >= 10:
+        return f"{digits[:3]} {digits[3:6]} ****"
+    elif len(digits) >= 7:
+        return f"{digits[:3]} {digits[3:6]} {'*' * (len(digits)-6)}"
+    elif len(digits) > 3:
+        return f"{digits[:3]} {'*' * (len(digits)-3)}"
+    return "****"
+
+
+@app.template_filter("mask_phone")
+def mask_phone_filter(value):
+    return mask_phone(value)
+
+
 def required_admin():
     return session.get("admin") is True
+
+
+def obtener_datos_pago():
+    """
+    Retorna un diccionario con los números de medios de pago configurados.
+    Si no existen en BD, devuelve valores predeterminados.
+    """
+    defaults = {
+        "nequi": "310 123 4567",
+        "daviplata": "310 123 4567",
+        "bancolombia": "Ahorros / A la mano",
+        "titular": "Dinámicas Alex"
+    }
+    try:
+        ajustes = Ajuste.query.all()
+        datos = dict(defaults)
+        for a in ajustes:
+            if a.clave in datos and a.valor:
+                datos[a.clave] = a.valor
+        return datos
+    except Exception:
+        return defaults
 
 
 # =========================================================
@@ -274,9 +405,20 @@ def home():
         .all()
     )
 
+    ganadores_recientes = (
+        GanadorHistorico.query
+        .order_by(GanadorHistorico.id.desc())
+        .limit(12)
+        .all()
+    )
+
+    medios_pago = obtener_datos_pago()
+
     return render_template(
         "index.html",
-        sorteos_activos=sorteos_activos
+        sorteos_activos=sorteos_activos,
+        ganadores_recientes=ganadores_recientes,
+        medios_pago=medios_pago
     )
 
 
@@ -333,16 +475,41 @@ def ver_tabla(id):
 
     recaudado = pagados * (sorteo.valor or 0)
     por_recaudar = apartados * (sorteo.valor or 0)
+    medios_pago = obtener_datos_pago()
+
+    # Construir lista ordenada de participantes (00 al 99)
+    participantes = []
+    for i in range(100):
+        num_str = f"{i:02d}"
+        item = mapa_numeros[num_str]
+        if item["estado"] != "LIBRE":
+            participantes.append({
+                "numero": num_str,
+                "cliente": item["cliente"] or "Anónimo",
+                "telefono_oculto": mask_phone(item["telefono"]),
+                "telefono_raw": item["telefono"],
+                "estado": item["estado"],
+                "venta_id": item["venta_id"]
+            })
+
+    # Consultar ganadores históricos asociados a esta dinámica
+    ganadores_sorteo = GanadorHistorico.query.filter(
+        (GanadorHistorico.loteria == sorteo.loteria) &
+        (GanadorHistorico.fecha == sorteo.fecha)
+    ).all()
 
     return render_template(
         "tabla.html",
         sorteo=sorteo,
         mapa_numeros=mapa_numeros,
+        participantes=participantes,
+        ganadores_sorteo=ganadores_sorteo,
         libres=libres,
         apartados=apartados,
         pagados=pagados,
         recaudado=recaudado,
-        por_recaudar=por_recaudar
+        por_recaudar=por_recaudar,
+        medios_pago=medios_pago
     )
 
 
@@ -652,11 +819,22 @@ def admin():
         if s.estado == "ACTIVO"
     ]
 
+    medios_pago = obtener_datos_pago()
+
+    ganadores_muro = (
+        GanadorHistorico.query
+        .order_by(GanadorHistorico.id.desc())
+        .limit(30)
+        .all()
+    )
+
     return render_template(
         "admin.html",
         ventas=ventas,
         sorteos=sorteos,
-        sorteos_activos=sorteos_activos
+        sorteos_activos=sorteos_activos,
+        medios_pago=medios_pago,
+        ganadores_muro=ganadores_muro
     )
 
 
@@ -1176,6 +1354,119 @@ def exportar():
 
 
 # =========================================================
+# CONFIGURACIÓN DE MEDIOS DE PAGO (AJUSTES)
+# =========================================================
+
+@app.post("/admin/ajustes")
+def guardar_ajustes():
+
+    if not required_admin():
+        return redirect(url_for("login"))
+
+    try:
+        campos = ["nequi", "daviplata", "bancolombia", "titular"]
+        for campo in campos:
+            valor = request.form.get(campo, "").strip()
+            item = Ajuste.query.filter_by(clave=campo).first()
+            if not item:
+                item = Ajuste(clave=campo, valor=valor)
+                db.session.add(item)
+            else:
+                item.valor = valor
+
+        db.session.commit()
+        flash("💳 Medios de pago actualizados correctamente.", "ok")
+
+    except Exception as error:
+        db.session.rollback()
+        flash(f"Error al guardar ajustes: {str(error)}", "error")
+
+    return redirect(url_for("admin"))
+
+
+# =========================================================
+# GESTIÓN DEL MURO DE GANADORES (PUBLICAR / ELIMINAR)
+# =========================================================
+
+@app.post("/admin/ganadores/publicar")
+def publicar_ganador():
+
+    if not required_admin():
+        return {"error": "No autorizado"}, 401
+
+    try:
+        data = request.get_json() or {}
+        sorteo_nombre = str(data.get("sorteo_nombre", "")).strip() or "Dinámica Oficial"
+        loteria = str(data.get("loteria", "")).strip()
+        fecha = str(data.get("fecha", "")).strip()
+        numero = str(data.get("numero", "")).strip().zfill(2)
+        nombre = str(data.get("nombre", "")).strip()
+        categoria = str(data.get("categoria", "")).strip() or "Premio Ganador"
+        premio = str(data.get("premio", "")).strip() or "$50.000"
+        cifras_sorteo = str(data.get("cifras_sorteo", "")).strip()
+
+        if not nombre or not numero:
+            return {"error": "Faltan el nombre o el número del ganador."}, 400
+
+        # Evitar registros duplicados idénticos en el muro
+        existente = GanadorHistorico.query.filter_by(
+            loteria=loteria,
+            fecha=fecha,
+            numero=numero,
+            categoria=categoria
+        ).first()
+
+        if existente:
+            return {
+                "ok": True,
+                "mensaje": "Este ganador ya se encuentra publicado en el Muro Oficial."
+            }
+
+        nuevo = GanadorHistorico(
+            sorteo_nombre=sorteo_nombre,
+            loteria=loteria,
+            fecha=fecha,
+            numero=numero,
+            nombre=nombre,
+            categoria=categoria,
+            premio=premio,
+            cifras_sorteo=cifras_sorteo
+        )
+
+        db.session.add(nuevo)
+        db.session.commit()
+
+        return {
+            "ok": True,
+            "mensaje": f"🏆 ¡{nombre} (#{numero}) publicado con éxito en el Muro!",
+            "id": nuevo.id
+        }
+
+    except Exception as error:
+        db.session.rollback()
+        return {"error": str(error)}, 500
+
+
+@app.post("/admin/ganadores/eliminar/<int:id>")
+def eliminar_ganador_muro(id):
+
+    if not required_admin():
+        return redirect(url_for("login"))
+
+    try:
+        ganador = db.session.get(GanadorHistorico, id)
+        if ganador:
+            db.session.delete(ganador)
+            db.session.commit()
+            flash("🏆 Ganador retirado del Muro correctamente.", "ok")
+    except Exception as error:
+        db.session.rollback()
+        flash(f"Error al retirar ganador: {str(error)}", "error")
+
+    return redirect(url_for("admin"))
+
+
+# =========================================================
 # VERIFICAR GANADORES (POR 4 CIFRAS)
 # =========================================================
 
@@ -1211,9 +1502,20 @@ def verificar_ganadores():
 
     todas_ventas = consulta.all()
 
-    def serialize_ventas(ventas_list):
-        return [
-            {
+    def serialize_ventas(ventas_list, cat_label):
+        resultado = []
+        for v in ventas_list:
+            sorteo_nombre = v.sorteo.nombre if v.sorteo else "Dinámica Oficial"
+            premio_estimado = "$50.000"
+            if v.sorteo:
+                if "Mayor" in cat_label or "últimas" in cat_label.lower():
+                    premio_estimado = v.sorteo.premio_mayor or "$320.000"
+                elif "primeras" in cat_label.lower():
+                    premio_estimado = v.sorteo.premio_primeras or "$50.000"
+                else:
+                    premio_estimado = v.sorteo.premio_medio or "$50.000"
+
+            resultado.append({
                 "id": v.id,
                 "nombre": v.nombre,
                 "telefono": v.telefono,
@@ -1221,30 +1523,33 @@ def verificar_ganadores():
                 "loteria": v.loteria,
                 "fecha": v.fecha,
                 "valor": v.valor,
-                "estado": v.estado
-            }
-            for v in ventas_list
-        ]
+                "estado": v.estado,
+                "sorteo_nombre": sorteo_nombre,
+                "premio_estimado": premio_estimado
+            })
+        return resultado
 
-    def buscar_por_numero(target_num):
+    def buscar_por_numero(target_num, cat_label):
         matches = []
         target_int = int(target_num) if target_num.isdigit() else None
         for v in todas_ventas:
             num_clean = str(v.numero).strip()
             if num_clean == target_num or (target_int is not None and num_clean.isdigit() and int(num_clean) == target_int):
                 matches.append(v)
-        return serialize_ventas(matches)
+        return serialize_ventas(matches, cat_label)
 
     return {
         "ok": True,
         "cifras": cifras,
+        "loteria": loteria,
+        "fecha": fecha,
         "ultimas_2": ultimas_2,
         "primeras_2": primeras_2,
         "medio_2": medio_2,
         "ganadores": {
-            "ultimas": buscar_por_numero(ultimas_2),
-            "primeras": buscar_por_numero(primeras_2),
-            "medio": buscar_por_numero(medio_2)
+            "ultimas": buscar_por_numero(ultimas_2, "Premio Mayor (Últimas 2)"),
+            "primeras": buscar_por_numero(primeras_2, "Premio Secundario (Primeras 2)"),
+            "medio": buscar_por_numero(medio_2, "Premio Secundario (Del Medio)")
         }
     }
 

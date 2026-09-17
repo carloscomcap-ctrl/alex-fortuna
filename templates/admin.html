@@ -114,18 +114,33 @@
         </div>
 
         <!-- FORMULARIO CREAR SORTEO (EXPANDIBLE) -->
-        <div id="form-crear-sorteo-box" style="display: none; background: #070d17; border: 1px solid #23344d; border-radius: 14px; padding: 20px; margin-bottom: 25px;">
-            <h3 style="color: var(--dorado); margin-top: 0;">➕ Configurar Nueva Dinámica Diaria</h3>
-            <form method="POST" action="{{ url_for('crear_sorteo') }}">
+        <div id="form-crear-sorteo-box" style="display: none; background: #070d17; border: 1px solid #23344d; border-radius: 14px; padding: 22px; margin-bottom: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+                <h3 style="color: var(--dorado); margin: 0; font-size: 18px;">➕ Configurar Nueva Dinámica</h3>
+                
+                <!-- INTERRUPTOR DE MODO: MANUAL vs PLANTILLAS -->
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="btn-modo-manual" class="pill-filtro activo" style="font-size: 12px; padding: 6px 14px;">
+                        ✍️ Modo Manual / Personalizado
+                    </button>
+                    <button type="button" id="btn-modo-auto" class="pill-filtro" style="font-size: 12px; padding: 6px 14px;">
+                        ⚡ Plantillas Automáticas (1 clic)
+                    </button>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('crear_sorteo') }}" id="form-crear-dinamica">
                 <div class="form-grid">
                     <div>
                         <label class="label-campo">Nombre del Sorteo</label>
-                        <input type="text" name="nombre" placeholder="Ej: Sorteo Mi Fe" required>
+                        <input type="text" name="nombre" id="sorteo-nombre-input" placeholder="Ej: Sorteo Mi Fe, Gran Rifa Alex, Especial..." required>
                     </div>
+
                     <div>
-                        <label class="label-campo">Lotería</label>
-                        <select name="loteria" required>
+                        <label class="label-campo">Lotería / Juego</label>
+                        <select name="loteria" id="select-loteria-sorteo" required onchange="verificarLoteriaOtra(this)">
                             <option value="">Seleccionar lotería</option>
+                            <option value="OTRA" style="color: var(--dorado); font-weight: bold;">✍️ Otra Lotería / Escribir Manualmente...</option>
                             <optgroup label="🏛️ Loterías Principales">
                                 <option value="Lotería del Quindío">Lotería del Quindío</option>
                                 <option value="Lotería de Bogotá">Lotería de Bogotá</option>
@@ -171,17 +186,26 @@
                             </optgroup>
                         </select>
                     </div>
+
+                    <!-- CAMPO LOTERÍA MANUAL (SI ELIGE OTRA) -->
+                    <div id="bloque-loteria-otra" style="display: none;">
+                        <label class="label-campo" style="color: var(--dorado);">✍️ Escribe el nombre de la lotería / sorteo:</label>
+                        <input type="text" name="loteria_otra" id="input-loteria-otra" placeholder="Ej: Sorteo Especial Navidad, Lotería de Panamá...">
+                    </div>
+
                     <div>
                         <label class="label-campo">Fecha</label>
                         <input type="date" name="fecha" id="sorteo-fecha-nueva" required onclick="try{this.showPicker()}catch(e){}" title="Haz clic para abrir el calendario">
                     </div>
+
                     <div>
                         <label class="label-campo">Jornada / Horario</label>
-                        <input type="text" name="horario" placeholder="Ej: Día, Tarde o Noche" value="Día" required>
+                        <input type="text" name="horario" placeholder="Ej: Día, Tarde, Noche o 10:30 PM" value="Noche" required>
                     </div>
 
-                    <div style="grid-column: 1 / -1; background: #060c16; border: 1px solid #1c2b3e; border-radius: 12px; padding: 14px; margin: 6px 0;">
-                        <label class="label-campo" style="margin-bottom: 8px; color: var(--dorado); font-weight: 800;">⚡ Plantillas Rápidas de Premios (1 clic):</label>
+                    <!-- BLOQUE DE PLANTILLAS AUTOMÁTICAS (OPCIONAL/INTERCAMBIABLE) -->
+                    <div id="bloque-presets-automaticos" style="grid-column: 1 / -1; background: #060c16; border: 1px solid #1c2b3e; border-radius: 12px; padding: 14px; margin: 4px 0;">
+                        <label class="label-campo" style="margin-bottom: 8px; color: var(--dorado); font-weight: 800;">⚡ Plantillas Rápidas Predefinidas:</label>
                         <div class="botones-presets-grid">
                             <button type="button" class="btn-preset-sorteo" data-valor="5000" data-p1="$200.000" data-p2="$50.000" data-p3="$50.000">
                                 🎟️ $5.000 ($200k + $50k + $50k)
@@ -197,17 +221,18 @@
                             </button>
                         </div>
                         <small style="color: #94a3b8; font-size: 11px; display: block; margin-top: 8px;">
-                            💡 Los premios se fijan automáticamente pero los puedes editar libremente a tu gusto en las casillas de abajo.
+                            💡 Puedes hacer clic en una plantilla para autocompletar o escribir tus propios valores manuales en las casillas de abajo.
                         </small>
                     </div>
 
+                    <!-- CAMPOS DE VALOR Y PREMIOS MANUALES -->
                     <div>
-                        <label class="label-campo">Valor Boleta ($)</label>
+                        <label class="label-campo">Valor de la Boleta ($)</label>
                         <input type="number" name="valor" id="sorteo-valor-nuevo" placeholder="Ej: 7000 (o 0 para gratis)" min="0" step="100" value="7000" required>
                     </div>
                     <div>
                         <label class="label-campo">Premio Mayor (Últimas 2)</label>
-                        <input type="text" name="premio_mayor" id="sorteo-p-mayor" placeholder="Ej: $320.000" value="$320.000">
+                        <input type="text" name="premio_mayor" id="sorteo-p-mayor" placeholder="Ej: $320.000 o Premio en Especie" value="$320.000">
                     </div>
                     <div>
                         <label class="label-campo">Premio Primeras 2</label>
@@ -218,7 +243,7 @@
                         <input type="text" name="premio_medio" id="sorteo-p-medio" placeholder="Ej: $50.000" value="$50.000">
                     </div>
                 </div>
-                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
                     <button type="submit" class="btn-oro">💾 GUARDAR Y ACTIVAR SORTEO</button>
                     <button type="button" class="btn-filtro" id="btn-cancelar-sorteo">Cancelar</button>
                 </div>
@@ -1691,6 +1716,41 @@ if (selectorSorteoVenta) {
     }
 }
 
+
+// Verificar si seleccionó lotería OTRA para mostrar campo de texto manual
+function verificarLoteriaOtra(select) {
+    const bloqueOtra = document.getElementById("bloque-loteria-otra");
+    const inputOtra = document.getElementById("input-loteria-otra");
+    if (!bloqueOtra || !inputOtra) return;
+    if (select.value === "OTRA") {
+        bloqueOtra.style.display = "block";
+        inputOtra.required = true;
+        inputOtra.focus();
+    } else {
+        bloqueOtra.style.display = "none";
+        inputOtra.required = false;
+        inputOtra.value = "";
+    }
+}
+
+// Alternar entre Modo Manual y Modo Plantillas Automáticas
+const btnModoManual = document.getElementById("btn-modo-manual");
+const btnModoAuto = document.getElementById("btn-modo-auto");
+const bloquePresets = document.getElementById("bloque-presets-automaticos");
+
+if (btnModoManual && btnModoAuto && bloquePresets) {
+    btnModoManual.addEventListener("click", () => {
+        btnModoManual.classList.add("activo");
+        btnModoAuto.classList.remove("activo");
+        bloquePresets.style.display = "none";
+    });
+
+    btnModoAuto.addEventListener("click", () => {
+        btnModoAuto.classList.add("activo");
+        btnModoManual.classList.remove("activo");
+        bloquePresets.style.display = "block";
+    });
+}
 
 /* =========================================================
    PRESETS DE PREMIOS AUTOMÁTICOS AL CREAR SORTEO

@@ -19,6 +19,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import pandas as pd
 
 
+import time
+
 # =========================================================
 # APLICACIÓN
 # =========================================================
@@ -27,8 +29,45 @@ app = Flask(__name__)
 
 app.secret_key = os.environ.get(
     "SECRET_KEY",
-    "cambia-esta-clave-en-produccion"
+    "dinamicas-alex-2027-super-secret-key-prod"
 )
+
+# Seguridad de cookies de sesión
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # Máximo 10 MB
+
+# Control de intentos de inicio de sesión (Protección Fuerza Bruta)
+login_attempts = {}
+
+def get_client_ip():
+    if request.headers.get("X-Forwarded-For"):
+        return request.headers.get("X-Forwarded-For").split(",")[0].strip()
+    return request.remote_addr or "127.0.0.1"
+
+def check_login_rate_limit(ip):
+    now = time.time()
+    attempts = login_attempts.get(ip, [])
+    attempts = [t for t in attempts if now - t < 900]  # Ventana de 15 min
+    login_attempts[ip] = attempts
+    return len(attempts) < 5
+
+def record_failed_login(ip):
+    now = time.time()
+    attempts = login_attempts.get(ip, [])
+    attempts.append(now)
+    login_attempts[ip] = attempts
+
+def reset_login_attempts(ip):
+    login_attempts.pop(ip, None)
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 
 # =========================================================
@@ -554,10 +593,18 @@ def login():
 
     if request.method == "POST":
 
+        ip = get_client_ip()
+        if not check_login_rate_limit(ip):
+            flash(
+                "⛔ Demasiados intentos fallidos. Por motivos de seguridad, espera 15 minutos antes de intentar de nuevo.",
+                "error"
+            )
+            return render_template("login.html")
+
         user = request.form.get(
             "usuario",
             ""
-        )
+        ).strip()
 
         password = request.form.get(
             "password",
@@ -572,11 +619,15 @@ def login():
             )
         ):
 
+            session.clear()
             session["admin"] = True
+            reset_login_attempts(ip)
 
             return redirect(
                 url_for("admin")
             )
+
+        record_failed_login(ip)
 
         flash(
             "Usuario o contraseña incorrectos.",
@@ -858,10 +909,17 @@ def crear_sorteo():
             ""
         ).strip()
 
-        loteria = request.form.get(
+        loteria_select = request.form.get(
             "loteria",
             ""
         ).strip()
+
+        loteria_otra = request.form.get(
+            "loteria_otra",
+            ""
+        ).strip()
+
+        loteria = loteria_otra if (loteria_select == "OTRA" and loteria_otra) else loteria_select
 
         fecha = request.form.get(
             "fecha",

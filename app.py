@@ -879,14 +879,86 @@ def admin():
         .all()
     )
 
+    # Finanzas y métricas en vivo
+    total_recaudado = sum(v.valor or 0 for v in ventas if v.estado == "PAGADO")
+    total_por_recaudar = sum(v.valor or 0 for v in ventas if v.estado == "PENDIENTE")
+    boletas_pagadas = sum(1 for v in ventas if v.estado == "PAGADO")
+    boletas_apartadas = sum(1 for v in ventas if v.estado == "PENDIENTE")
+
+    finanzas = {
+        "recaudado": total_recaudado,
+        "por_recaudar": total_por_recaudar,
+        "boletas_pagadas": boletas_pagadas,
+        "boletas_apartadas": boletas_apartadas,
+        "total_ventas": len(ventas)
+    }
+
     return render_template(
         "admin.html",
         ventas=ventas,
         sorteos=sorteos,
         sorteos_activos=sorteos_activos,
         medios_pago=medios_pago,
-        ganadores_muro=ganadores_muro
+        ganadores_muro=ganadores_muro,
+        finanzas=finanzas
     )
+
+
+# =========================================================
+# COMPROBANTE DIGITAL OFICIAL DE BOLETA
+# =========================================================
+
+@app.route("/comprobante/<int:id>")
+def ver_comprobante(id):
+
+    venta = db.session.get(Venta, id)
+
+    if not venta:
+        flash("El comprobante solicitado no existe.", "error")
+        return redirect(url_for("home"))
+
+    sorteo = venta.sorteo
+    if not sorteo:
+        sorteo = Sorteo.query.filter_by(
+            loteria=venta.loteria,
+            fecha=venta.fecha
+        ).first()
+
+    return render_template(
+        "comprobante.html",
+        venta=venta,
+        sorteo=sorteo
+    )
+
+
+# =========================================================
+# LIBERAR BOLETAS APARTADAS (PENDIENTES) DE UN SORTEO
+# =========================================================
+
+@app.post("/admin/sorteos/liberar-apartados/<int:id>")
+def liberar_apartados_sorteo(id):
+
+    if not required_admin():
+        return redirect(url_for("login"))
+
+    sorteo = db.session.get(Sorteo, id)
+    if not sorteo:
+        flash("El sorteo no existe.", "error")
+        return redirect(url_for("admin"))
+
+    pendientes = Venta.query.filter(
+        ((Venta.sorteo_id == sorteo.id) |
+         ((Venta.sorteo_id == None) & (Venta.loteria == sorteo.loteria) & (Venta.fecha == sorteo.fecha))) &
+        (Venta.estado == "PENDIENTE")
+    ).all()
+
+    total_liberados = len(pendientes)
+    for p in pendientes:
+        db.session.delete(p)
+
+    db.session.commit()
+    flash(f"🧹 Se liberaron {total_liberados} boletas apartadas del sorteo '{sorteo.nombre}'. Los números ya están libres nuevamente.", "ok")
+    return redirect(url_for("admin"))
 
 
 # =========================================================

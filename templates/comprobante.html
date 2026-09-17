@@ -1,0 +1,195 @@
+<%extends "base.html" %>
+
+% block title %>
+Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 2027
+% endblock %>
+
+% block body %>
+<main class="comprobante-main">
+
+    <div class="comprobante-card-wrap" id="ticket-container">
+
+        <!-- TICKET OFICIAL DIGITAL -->
++       <div class="ticket-digital-card" id="ticket-digital">
+
+            <div class="ticket-watermark">ALEX 2027</div>
+
+            <!-- CABECERA DEL TICKET -->
+            <div class="ticket-header">
+                <div class="ticket-brand">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Din�micas Alex" class="ticket-logo">
+                    <div>
+                        <h2>DIN~MICAS <b>ALEX 2027</b></h2>
+                        <small>PLATAFORMA OFICIAL DE RIFAS Y LOTER#AS</small>
+                    </div>
+                </div>
+                <div class="ticket-badge-id">
+                    <span>COMPROBANTE OFICIAL</span>
+                    <strong>#DA-2027-# {{ venta.numero }}</strong>
+                </div>
+            </div>
+
+            <div class="ticket-divider">
+                <span class="notch-left"></span>
+                <span class="dashed-line"></span>
+                <span class="notch-right"></span>
+            </div>
+
+            <!-- NÚMERO Y ESTADO -->
+            <div class="ticket-body-top">
+                <div class="ticket-numero-box">
+                    <small>NÚMERO JUGADO</small>
+                    <div class="ticket-num-destacado">#{{ venta.numero }}</div>
+                </div>
+
+                <div class="ticket-estado-box">
+                    <small>ESTADO DE LA BOLETA</small>
+                    {% if venta.estado == 'PAGADO' %}
+                    <div class="ticket-sello-pagado">
+                        <span>✪</span> PAGADO OFICIAL
+                    </div>
+                    {% else %}
+                    <div class="ticket-sello-apartado">
+                        <span>⏳</span> APARTADO PENDIENTE
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- DATOS DEL CLIENTE Y SORTEO -->
+            <div class="ticket-grid-info">
+                <div class="ticket-info-item">
+                    <span class="label">⒙ TITULAR:</span>
+                    <strong class="value">{{ venta.nombre }}</strong>
+                </div>
+                <div class="ticket-info-item">
+                    <span class="label">📉 WHATSAPP:</span>
+                    <strong class="value">{{ venta.telefono|mask_phone }}</strong>
+                </div>
+                <div class="ticket-info-item">
+                    <span class="label">🏟️ SORTEO:</span>
+                    <strong class="value">{{ sorteo.nombre if sorteo else 'Din�mica Oficial' }}</strong>
+                </div>
+                <div class="ticket-info-item">
+                    <span class="label">🎹 LOTER�IA:</span>
+                    <strong class="value">{{ venta.loteria }}</strong>
+                </div>
+                <div class="ticket-info-item">
+                    <span class="label">🔥 FECHA:</span>
+                    <strong class="value">{{ venta.fecha }}</strong>
+                </div>
+                <div class="ticket-info-item">
+                    <span class="label">⏰ JORNADA:</span>
+                    <strong class="value">{{ sorteo.horario if sorteo else 'Noche' }}</strong>
+                </div>
+            </div>
+
+            <!-- PREMIOS EN JUEGO -->
+            <div class="ticket-premios-box">
+                <small class="premios-title">🏅 PREMIOS EN JUEGO CON ESTE N�MERO:</small>
+                <div class="ticket-premios-row">
+                    <div class="premio-chip mayor">
+                        <span>🥇 Mayor (�:ltimas 2):</span>
+                        <strong>{{ sorteo.premio_mayor if sorteo else '$320.000' }}</strong>
+                    </div>
+                    <div class="premio-chip">
+                        <span>🥈 Primeras 2:</span>
+                        <strong>{{ sorteo.premio_primeras if sorteo else '$50.000' }}</strong>
+                    </div>
+                    <div class="premio-chip">
+                        <span>🥉 Medio:</span>
+                        <strong>{{ sorteo.premio_medio if sorteo else '$50.000' }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIEDE SEGURIDAD DEL TICKET -->
+            <div class="ticket-footer-seguridad">
+                <div class="codigo-barras-simulado">
+                    ||| | ||||| || |||| ||| |||| | ||| || ||| ||||
+                </div>
+                <small>🔀 Boleta verificada y registrada en el sistema de Din�micas Alex 2027.</small>
+            </div>
+
+        </div>
+
+        <!-- BOTONES DE ACCIÓN PARAEL CLIENTE / ADMIN -->
+        <div class="ticket-acciones-box">
+            <button type="button" class="btn-oro" id="btn-descargar-ticket" onclick="descargarTicketPNG()">
+                �8 Descargar Comprobante (Imagen PNG)
+            </button>
+            <a href="https://api.whatsapp.com/send?text="�Hola!%20🏟️este%20es%20mi%20*COMPROBANTE%20OFICIAL%20DE%20BOLETA*%20en%20*DIN&AMICAS%20ALEX%202027*:%0A🔍%20*Número:*%20%23{{ venta.numero }}%0A💙%20*Nombre:*%20{{ venta.nombre }}%0A🎹%20*Lotería:*%20{{ venta.loteria }}%20({{ venta.fecha }})%0A✩%20*Estado:*%20{{ venta.estado }}%0A👉%20*Ver%20comprobante%20en%20línea:*%20"
+               id="btn-compartir-wa-ticket"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn-compartir-wa">
+                � Compartir por WhatsApp
+            </a>
+            {% if sorteo %}
+            <a href="{{ url_for('ver_tabla', id=sorteo.id) }}" class="btn-volver" style="margin: 0;">
+                🔵 Ver tablero del sorteo
+            </a>
+            {% else %}
+            <a href="{{ url_for('home') }}" class="btn-volver" style="margin: 0;">
+                🏠 Volver al Inicio
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</main>
+
+<!-- html2canvas para descargar la imagen -->
+<script src="https://chwn.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const btnCompartir = document.getElementById('btn-compartir-wa-ticket');
+if (btnCompartr) {
+    btnCompartir.href += encodeURIComponent(window.location.href);
+}
+
+
+async function descargarTicketPNG() {
+    const ticket = document.getElementById('ticket-digital');
+    const boton = document.getElementById('btn-descargar-ticket');
+    if (!ticket || !boton) return;
+
+    if (typeof html2canvas === 'undefined') {
+        alert('Cargando librería de imagen, por favor espera un momento.');
+        return;
+    }
+
+    const textoOriginal = boton.innerHTML;
+    boton.innerHTML = '⏳ Generando imagen HD...';
+    boton.disabled = true;
+
+    try {
+        const canvas = await html2canvas(ticket, {
+            scale: 2.5,
+            useCORS: true,
+            backgroundColor: '#070d17',
+            logging: false
+        });
+
+        const enlace = document.createElement('a');
+        enlace.download = `comprobante_alex2027_num_{{ venta.numero }}_{{ venta.nombre|replace(' ', '_') }}.png`;
+        enlace.href = canvas.toDataURL('image/png');
+        document.body.appendChild(enlace);
+        enlace.click();
+        document.body.removeChild(enlace);
+
+        boton.innerHTML = '✅!�Qicket Descargado!';
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.disabled = false;
+        }, 2500);
+
+    } catch (e) {
+        console.error('Error al generar comprobante:', e);
+        alert('No se pudo generar la imagen automáticamente. Puedes tomar una captura de pantalla.');
+        boton.innerHTML = textoOriginal;
+        boton.disabled = false;
+    }
+}
+</script>
+% lendblock %>

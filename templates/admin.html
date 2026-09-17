@@ -96,6 +96,40 @@
     </div>
 
 
+    <!-- =====================================================
+         PANEL DE FINANZAS Y MÉTRICAS EN VIVO
+    ====================================================== -->
+    <section class="admin-card panel-finanzas-card">
+        <div class="finanzas-grid">
+            <div class="finanza-item recaudado">
+                <span class="finanza-icono">💰</span>
+                <div class="finanza-datos">
+                    <small>TOTAL RECAUDADO (PAGADOS)</small>
+                    <strong>${{ "{:,.0f}".format(finanzas.recaudado).replace(",", ".") }}</strong>
+                    <span class="finanza-sub">🟢 {{ finanzas.boletas_pagadas }} boletas confirmadas</span>
+                </div>
+            </div>
+
+            <div class="finanza-item pendiente">
+                <span class="finanza-icono">⏳</span>
+                <div class="finanza-datos">
+                    <small>POR RECAUDAR (APARTADOS)</small>
+                    <strong>${{ "{:,.0f}".format(finanzas.por_recaudar).replace(",", ".") }}</strong>
+                    <span class="finanza-sub">🟡 {{ finanzas.boletas_apartadas }} boletas pendientes</span>
+                </div>
+            </div>
+
+            <div class="finanza-item ventas-total">
+                <span class="finanza-icono">🎟️</span>
+                <div class="finanza-datos">
+                    <small>TOTAL BOLETAS EN EL SISTEMA</small>
+                    <strong>{{ finanzas.total_ventas }}</strong>
+                    <span class="finanza-sub">📈 {{ finanzas.boletas_pagadas + finanzas.boletas_apartadas }} asignadas</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- =================================================
          GESTIÓN DE SORTEOS Y TABLAS 00-99
@@ -273,6 +307,11 @@
                     <a href="{{ url_for('ver_tabla', id=s.id) }}" target="_blank" class="btn-admin-tabla">
                         🔢 Ver Tabla 00-99 ➔
                     </a>
+                    <form method="POST" action="{{ url_for('liberar_apartados_sorteo', id=s.id) }}" style="display:inline;" onsubmit="return confirm('¿Deseas liberar todos los números apartados (no pagados) de {{ s.nombre }}? Los números volverán a estar libres.');">
+                        <button type="submit" class="btn-admin-estado" style="background:#451a03; border-color:#d97706; color:#fcd34d;" title="Liberar apartados no pagados">
+                            🧹 Liberar Apartados
+                        </button>
+                    </form>
                     <form method="POST" action="{{ url_for('cambiar_estado_sorteo', id=s.id) }}" style="display:inline;">
                         <button type="submit" class="btn-admin-estado" title="Cambiar estado">
                             {% if s.estado == 'ACTIVO' %}🔒 Cerrar{% else %}🟢 Activar{% endif %}
@@ -999,9 +1038,15 @@
 
                             <div class="acciones">
 
+                                <!-- TICKET DIGITAL -->
+                                <a href="{{ url_for('ver_comprobante', id=venta.id) }}"
+                                   target="_blank"
+                                   class="btn-admin-ticket"
+                                   title="Ver y descargar Ticket Digital Oficial">
+                                    🎟️ Ticket
+                                </a>
 
                                 <!-- CAMBIAR ESTADO -->
-
                                 <form
                                     method="POST"
                                     action="{{ url_for(
@@ -1009,27 +1054,40 @@
                                         id=venta.id
                                     ) }}"
                                 >
-
-                                    <button type="submit">
-
+                                    <button type="submit" title="Cambiar estado de pago">
                                         {% if venta.estado == "PAGADO" %}
-
                                             🟡 PENDIENTE
-
                                         {% else %}
-
                                             🟢 PAGAR
-
                                         {% endif %}
-
                                     </button>
-
                                 </form>
 
+                                <!-- BOTONES RÁPIDOS DE WHATSAPP -->
+                                {% if venta.estado == "PENDIENTE" %}
+                                <button type="button"
+                                        class="btn-wa-recordatorio"
+                                        onclick="enviarRecordatorioPagoWA('{{ venta.nombre }}', '{{ venta.telefono }}', '{{ venta.numero }}', '{{ venta.loteria }}', '{{ venta.fecha }}', '{{ medios_pago.nequi }}', '{{ medios_pago.daviplata }}')"
+                                        title="Enviar recordatorio de cobro por WhatsApp">
+                                    💬 Cobrar
+                                </button>
+                                {% else %}
+                                <button type="button"
+                                        class="btn-wa-confirmar"
+                                        onclick="enviarConfirmacionPagoWA('{{ venta.nombre }}', '{{ venta.telefono }}', '{{ venta.numero }}', '{{ venta.loteria }}', '{{ venta.fecha }}', '{{ url_for('ver_comprobante', id=venta.id, _external=True) }}')"
+                                        title="Enviar confirmación oficial con link al ticket">
+                                    ✅ Confirmar
+                                </button>
+                                {% endif %}
 
+                                <button type="button"
+                                        class="btn-wa-ganador"
+                                        onclick="enviarFelicitarGanadorWA('{{ venta.nombre }}', '{{ venta.telefono }}', '{{ venta.numero }}', '{{ venta.loteria }}')"
+                                        title="Felicitar ganador por WhatsApp">
+                                    🏆
+                                </button>
 
                                 <!-- ELIMINAR -->
-
                                 <form
                                     method="POST"
                                     action="{{ url_for(
@@ -1040,24 +1098,10 @@
                                         '¿Seguro que deseas eliminar esta venta?'
                                     );"
                                 >
-
                                     <button type="submit" title="Eliminar venta">
-
                                         ❌
-
                                     </button>
-
                                 </form>
-
-
-                                <!-- COMPROBANTE WHATSAPP -->
-                                <button type="button"
-                                        class="btn-wa-comprobante"
-                                        onclick="enviarComprobanteWA('{{ venta.nombre }}', '{{ venta.telefono }}', '{{ venta.numero }}', '{{ venta.loteria }}', '{{ venta.fecha }}', '{{ venta.estado }}')"
-                                        title="Enviar comprobante por WhatsApp">
-                                    📲 WA
-                                </button>
-
 
                             </div>
 
@@ -1358,6 +1402,48 @@ function enviarComprobanteWA(nombre, telefono, numero, loteria, fecha, estado) {
 
     const url = `https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
+}
+
+function enviarRecordatorioPagoWA(nombre, telefono, numero, loteria, fecha, nequi, daviplata) {
+    let cleanTel = (telefono || "").replace(/\D/g, "");
+    if (cleanTel.length === 10) cleanTel = "57" + cleanTel;
+
+    const msg = `¡Hola *${nombre}*! 🍀\n\n` +
+        `Te escribimos de *DINÁMICAS ALEX 2027* para recordarte que tienes apartado el número *#${numero}* para el sorteo con la *${loteria}* (${fecha}).\n\n` +
+        `💳 *Medios de Pago Oficiales:*\n` +
+        `📲 *Nequi:* ${nequi || '310 123 4567'}\n` +
+        `📲 *Daviplata:* ${daviplata || '310 123 4567'}\n\n` +
+        `Por favor envíanos tu comprobante de transferencia para confirmar tu boleta como *PAGADA 🟢* antes de que juegue. ¡Muchas gracias y mucho éxito! 🤞💰`;
+
+    window.open(`https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function enviarConfirmacionPagoWA(nombre, telefono, numero, loteria, fecha, urlTicket) {
+    let cleanTel = (telefono || "").replace(/\D/g, "");
+    if (cleanTel.length === 10) cleanTel = "57" + cleanTel;
+
+    const msg = `¡Hola *${nombre}*! ✅\n\n` +
+        `🎉 ¡Tu boleta ha sido confirmada con éxito!\n\n` +
+        `🎟️ *DINÁMICAS ALEX 2027*\n` +
+        `🔢 *Número Oficial:* #${numero}\n` +
+        `🎰 *Lotería:* ${loteria} (${fecha})\n` +
+        `🟢 *Estado:* PAGADO OFICIALMENTE\n\n` +
+        `👉 *Consulta y descarga tu Comprobante Digital aquí:* ${urlTicket}\n\n` +
+        `¡Muchos éxitos y que la bendición esté contigo hoy! 🍀💰✨`;
+
+    window.open(`https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function enviarFelicitarGanadorWA(nombre, telefono, numero, loteria) {
+    let cleanTel = (telefono || "").replace(/\D/g, "");
+    if (cleanTel.length === 10) cleanTel = "57" + cleanTel;
+
+    const msg = `🎉🥳 *¡FELICITACIONES ${nombre.toUpperCase()}!* 🏆✨\n\n` +
+        `¡Tu número *#${numero}* acaba de salir GANADOR en *DINÁMICAS ALEX 2027* con la *${loteria}*! 💰\n\n` +
+        `Por favor indícanos tus datos para realizarte la entrega inmediata de tu premio. 🎁👏\n\n` +
+        `¡En Dinámicas Alex 2027 sí pagamos al instante! 🍀❤️`;
+
+    window.open(`https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`, "_blank");
 }
 
 

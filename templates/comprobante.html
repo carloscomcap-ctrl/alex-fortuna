@@ -1,31 +1,31 @@
-<%extends "base.html" %>
+{% extends "base.html" %}
 
-% block title %>
-Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 2027
-% endblock %>
+{% block title %}
+Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Dinámicas Alex 2027
+{% endblock %}
 
-% block body %>
+{% block body %}
 <main class="comprobante-main">
 
     <div class="comprobante-card-wrap" id="ticket-container">
 
         <!-- TICKET OFICIAL DIGITAL -->
-+       <div class="ticket-digital-card" id="ticket-digital">
+        <div class="ticket-digital-card" id="ticket-digital">
 
             <div class="ticket-watermark">ALEX 2027</div>
 
             <!-- CABECERA DEL TICKET -->
             <div class="ticket-header">
                 <div class="ticket-brand">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Din�micas Alex" class="ticket-logo">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Dinámicas Alex" class="ticket-logo">
                     <div>
-                        <h2>DIN~MICAS <b>ALEX 2027</b></h2>
-                        <small>PLATAFORMA OFICIAL DE RIFAS Y LOTER#AS</small>
+                        <h2>DINÁMICAS <b>ALEX 2027</b></h2>
+                        <small>PLATAFORMA OFICIAL DE RIFAS Y LOTERÍAS</small>
                     </div>
                 </div>
                 <div class="ticket-badge-id">
                     <span>COMPROBANTE OFICIAL</span>
-                    <strong>#DA-2027-# {{ venta.numero }}</strong>
+                    <strong>#DA-2027-{{ venta.numero }}</strong>
                 </div>
             </div>
 
@@ -46,7 +46,7 @@ Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 20
                     <small>ESTADO DE LA BOLETA</small>
                     {% if venta.estado == 'PAGADO' %}
                     <div class="ticket-sello-pagado">
-                        <span>✪</span> PAGADO OFICIAL
+                        <span>⭐</span> PAGADO OFICIAL
                     </div>
                     {% else %}
                     <div class="ticket-sello-apartado">
@@ -59,23 +59,23 @@ Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 20
             <!-- DATOS DEL CLIENTE Y SORTEO -->
             <div class="ticket-grid-info">
                 <div class="ticket-info-item">
-                    <span class="label">⒙ TITULAR:</span>
+                    <span class="label">👤 TITULAR:</span>
                     <strong class="value">{{ venta.nombre }}</strong>
                 </div>
                 <div class="ticket-info-item">
-                    <span class="label">📉 WHATSAPP:</span>
+                    <span class="label">📲 WHATSAPP:</span>
                     <strong class="value">{{ venta.telefono|mask_phone }}</strong>
                 </div>
                 <div class="ticket-info-item">
-                    <span class="label">🏟️ SORTEO:</span>
-                    <strong class="value">{{ sorteo.nombre if sorteo else 'Din�mica Oficial' }}</strong>
+                    <span class="label">🎟️ SORTEO:</span>
+                    <strong class="value">{{ sorteo.nombre if sorteo else 'Dinámica Oficial' }}</strong>
                 </div>
                 <div class="ticket-info-item">
-                    <span class="label">🎹 LOTER�IA:</span>
+                    <span class="label">🎰 LOTERÍA:</span>
                     <strong class="value">{{ venta.loteria }}</strong>
                 </div>
                 <div class="ticket-info-item">
-                    <span class="label">🔥 FECHA:</span>
+                    <span class="label">📅 FECHA:</span>
                     <strong class="value">{{ venta.fecha }}</strong>
                 </div>
                 <div class="ticket-info-item">
@@ -86,10 +86,10 @@ Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 20
 
             <!-- PREMIOS EN JUEGO -->
             <div class="ticket-premios-box">
-                <small class="premios-title">🏅 PREMIOS EN JUEGO CON ESTE N�MERO:</small>
+                <small class="premios-title">🏆 PREMIOS EN JUEGO CON ESTE NÚMERO:</small>
                 <div class="ticket-premios-row">
                     <div class="premio-chip mayor">
-                        <span>🥇 Mayor (�:ltimas 2):</span>
+                        <span>🥇 Mayor (Últimas 2):</span>
                         <strong>{{ sorteo.premio_mayor if sorteo else '$320.000' }}</strong>
                     </div>
                     <div class="premio-chip">
@@ -103,31 +103,34 @@ Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 20
                 </div>
             </div>
 
-            <!-- PIEDE SEGURIDAD DEL TICKET -->
+            <!-- PIE DE SEGURIDAD DEL TICKET -->
             <div class="ticket-footer-seguridad">
                 <div class="codigo-barras-simulado">
                     ||| | ||||| || |||| ||| |||| | ||| || ||| ||||
                 </div>
-                <small>🔀 Boleta verificada y registrada en el sistema de Din�micas Alex 2027.</small>
+                <small>🔒 Boleta verificada y registrada en el sistema de Dinámicas Alex 2027.</small>
             </div>
 
         </div>
 
-        <!-- BOTONES DE ACCIÓN PARAEL CLIENTE / ADMIN -->
+        <!-- BOTONES DE ACCIÓN PARA EL CLIENTE / ADMIN -->
         <div class="ticket-acciones-box">
             <button type="button" class="btn-oro" id="btn-descargar-ticket" onclick="descargarTicketPNG()">
-                �8 Descargar Comprobante (Imagen PNG)
+                📸 Descargar Comprobante (Imagen PNG)
             </button>
-            <a href="https://api.whatsapp.com/send?text="�Hola!%20🏟️este%20es%20mi%20*COMPROBANTE%20OFICIAL%20DE%20BOLETA*%20en%20*DIN&AMICAS%20ALEX%202027*:%0A🔍%20*Número:*%20%23{{ venta.numero }}%0A💙%20*Nombre:*%20{{ venta.nombre }}%0A🎹%20*Lotería:*%20{{ venta.loteria }}%20({{ venta.fecha }})%0A✩%20*Estado:*%20{{ venta.estado }}%0A👉%20*Ver%20comprobante%20en%20línea:*%20"
+            <a href="https://api.whatsapp.com/send?text=¡Hola!%20🎟️%20Este%20es%20mi%20*COMPROBANTE%20OFICIAL%20DE%20BOLETA*%20en%20*DINÁMICAS%20ALEX%202027*:%0A🔢%20*Número:*%20%23{{ venta.numero }}%0A👤%20*Nombre:*%20{{ venta.nombre }}%0A🎰%20*Lotería:*%20{{ venta.loteria }}%20({{ venta.fecha }})%0A⭐%20*Estado:*%20{{ venta.estado }}%0A👉%20*Ver%20comprobante%20en%20línea:*%20"
                id="btn-compartir-wa-ticket"
                target="_blank"
                rel="noopener noreferrer"
                class="btn-compartir-wa">
-                � Compartir por WhatsApp
+                📲 Compartir por WhatsApp
             </a>
+            <button type="button" class="btn-secundario" id="btn-copiar-link" onclick="copiarEnlaceComprobante()">
+                📋 Copiar Enlace
+            </button>
             {% if sorteo %}
             <a href="{{ url_for('ver_tabla', id=sorteo.id) }}" class="btn-volver" style="margin: 0;">
-                🔵 Ver tablero del sorteo
+                🔙 Ver tablero del sorteo
             </a>
             {% else %}
             <a href="{{ url_for('home') }}" class="btn-volver" style="margin: 0;">
@@ -141,55 +144,57 @@ Comprobante Oficial #{{ venta.numero }} - {{ venta.nombre }} | Din�micas Alex 20
 </main>
 
 <!-- html2canvas para descargar la imagen -->
-<script src="https://chwn.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 const btnCompartir = document.getElementById('btn-compartir-wa-ticket');
-if (btnCompartr) {
+if (btnCompartir) {
     btnCompartir.href += encodeURIComponent(window.location.href);
 }
 
+function copiarEnlaceComprobante() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('btn-copiar-link');
+        const orig = btn.innerText;
+        btn.innerText = '✅ ¡Enlace Copiado!';
+        setTimeout(() => { btn.innerText = orig; }, 2500);
+    }).catch(() => {
+        prompt('Copia el enlace de tu comprobante:', window.location.href);
+    });
+}
 
-async function descargarTicketPNG() {
-    const ticket = document.getElementById('ticket-digital');
-    const boton = document.getElementById('btn-descargar-ticket');
-    if (!ticket || !boton) return;
+function descargarTicketPNG() {
+    const ticketElem = document.getElementById('ticket-digital');
+    const btnDescarga = document.getElementById('btn-descargar-ticket');
+    if (!ticketElem) return;
 
     if (typeof html2canvas === 'undefined') {
-        alert('Cargando librería de imagen, por favor espera un momento.');
+        alert('Cargando librería de captura, por favor espera un momento...');
         return;
     }
 
-    const textoOriginal = boton.innerHTML;
-    boton.innerHTML = '⏳ Generando imagen HD...';
-    boton.disabled = true;
+    const textoOrig = btnDescarga.innerText;
+    btnDescarga.innerText = '⏳ Generando imagen...';
+    btnDescarga.disabled = true;
 
-    try {
-        const canvas = await html2canvas(ticket, {
-            scale: 2.5,
-            useCORS: true,
-            backgroundColor: '#070d17',
-            logging: false
-        });
-
+    html2canvas(ticketElem, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0f172a'
+    }).then(canvas => {
         const enlace = document.createElement('a');
-        enlace.download = `comprobante_alex2027_num_{{ venta.numero }}_{{ venta.nombre|replace(' ', '_') }}.png`;
+        enlace.download = 'Comprobante_DinamicasAlex2027_Boleta_{{ venta.numero }}.png';
         enlace.href = canvas.toDataURL('image/png');
-        document.body.appendChild(enlace);
         enlace.click();
-        document.body.removeChild(enlace);
-
-        boton.innerHTML = '✅!�Qicket Descargado!';
+        btnDescarga.innerText = '✅ ¡Descargado!';
         setTimeout(() => {
-            boton.innerHTML = textoOriginal;
-            boton.disabled = false;
+            btnDescarga.innerText = textoOrig;
+            btnDescarga.disabled = false;
         }, 2500);
-
-    } catch (e) {
-        console.error('Error al generar comprobante:', e);
-        alert('No se pudo generar la imagen automáticamente. Puedes tomar una captura de pantalla.');
-        boton.innerHTML = textoOriginal;
-        boton.disabled = false;
-    }
+    }).catch(err => {
+        alert('Error al generar la imagen: ' + err);
+        btnDescarga.innerText = textoOrig;
+        btnDescarga.disabled = false;
+    });
 }
 </script>
-% lendblock %>
+{% endblock %}

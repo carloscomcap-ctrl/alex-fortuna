@@ -131,6 +131,127 @@
     </section>
 
 
+    <!-- =====================================================
+         PANEL DE LIQUIDACIÓN DE RENTABILIDAD Y GANANCIA NETA
+         (EXCLUSIVO ADMINISTRADOR - CÁLCULO INTERNO)
+    ====================================================== -->
+    <section class="admin-card panel-rentabilidad-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+            <div>
+                <h2 style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                    💼 Calculadora de Rentabilidad y Ganancia Neta
+                    <span class="badge-privado-admin">🔒 Panel Exclusivo Administrador</span>
+                </h2>
+                <p class="hint" style="margin-bottom: 0;">
+                    Monitorea en tiempo real cuánto genera la tabla de 100 números, cuánto descuentan los premios a pagar y cuál es tu <b>ganancia neta real en el bolsillo</b> por cada sorteo.
+                </p>
+            </div>
+            <div class="resumen-ganancia-box">
+                <small>GANANCIA GLOBAL ACTUAL</small>
+                <strong class="{% if finanzas.ganancia_neta_global >= 0 %}ganancia-positiva{% else %}ganancia-negativa{% endif %}">
+                    {% if finanzas.ganancia_neta_global >= 0 %}+{% endif %}${{ "{:,.0f}".format(finanzas.ganancia_neta_global).replace(",", ".") }}
+                </strong>
+            </div>
+        </div>
+
+        {% if sorteos_con_balance %}
+        <div class="rentabilidad-grid">
+            {% for sb in sorteos_con_balance %}
+            <div class="rentabilidad-item-card {% if sb.sorteo.estado == 'CERRADO' %}cerrado{% endif %}">
+                <!-- CABECERA SORTEO -->
+                <div class="rent-card-header">
+                    <div>
+                        <div class="rent-titulo">
+                            <strong style="font-size: 17px; color: var(--blanco);">🎟️ {{ sb.sorteo.nombre }}</strong>
+                            <span class="badge-sorteo-estado {{ sb.sorteo.estado|lower }}" style="font-size: 10px; padding: 2px 7px;">
+                                {{ sb.sorteo.estado }}
+                            </span>
+                        </div>
+                        <small class="rent-sub" style="display: block; color: var(--gris); margin-top: 3px;">
+                            🎰 {{ sb.sorteo.loteria }} · 📅 {{ sb.sorteo.fecha }} ({{ sb.sorteo.horario }})
+                        </small>
+                    </div>
+                    <div class="rent-valor-boleta">
+                        <small style="color: var(--gris-2); font-size: 10px; text-transform: uppercase;">VALOR BOLETA</small>
+                        <strong style="font-size: 16px; color: var(--dorado); display: block;">
+                            {% if sb.val_boleta == 0 %}🎁 GRATIS{% else %}${{ "{:,.0f}".format(sb.val_boleta).replace(",", ".") }}{% endif %}
+                        </strong>
+                    </div>
+                </div>
+
+                <!-- DESGLOSE DE NÚMEROS Y DINERO -->
+                <div class="rent-desglose-grid">
+                    <div class="rent-mini-stat">
+                        <span>📊 Capacidad Tabla (100 #s):</span>
+                        <b>${{ "{:,.0f}".format(sb.capacidad_tabla).replace(",", ".") }}</b>
+                    </div>
+                    <div class="rent-mini-stat">
+                        <span>🎁 Costo Total Premios:</span>
+                        <b style="color: #fca5a5;">-${{ "{:,.0f}".format(sb.total_premios).replace(",", ".") }}</b>
+                    </div>
+                    <div class="rent-mini-stat">
+                        <span>💰 Recaudado Hoy (Pagados):</span>
+                        <b style="color: #86efac;">+${{ "{:,.0f}".format(sb.recaudado).replace(",", ".") }} ({{ sb.num_pagadas }} boletas)</b>
+                    </div>
+                    <div class="rent-mini-stat">
+                        <span>⏳ Por Cobrar (Apartados):</span>
+                        <b style="color: #fde047;">${{ "{:,.0f}".format(sb.por_recaudar).replace(",", ".") }} ({{ sb.num_apartadas }} boletas)</b>
+                    </div>
+                </div>
+
+                <!-- PREMIOS DESGLOSADOS -->
+                <div class="rent-premios-detalle">
+                    <small>🏆 Desglose Premios: 🥇 Mayor ({{ sb.sorteo.premio_mayor }}) · 🥈 Primeras ({{ sb.sorteo.premio_primeras }}) · 🥉 Medio ({{ sb.sorteo.premio_medio }})</small>
+                </div>
+
+                <!-- PUNTO DE EQUILIBRIO Y COBERTURA -->
+                <div class="rent-equilibrio-box">
+                    <div class="rent-equilibrio-info">
+                        <span>🎯 <b>Punto de equilibrio:</b> {{ sb.boletas_equilibrio }} boletas para pagar premios</span>
+                        {% if sb.num_pagadas >= sb.boletas_equilibrio and sb.boletas_equilibrio > 0 %}
+                            <span class="badge-equilibrio superado">🟢 ¡PUNTO DE EQUILIBRIO CUBIERTO! (+{{ sb.num_pagadas - sb.boletas_equilibrio }} boletas de ganancia limpia)</span>
+                        {% elif sb.val_boleta > 0 and sb.total_premios > 0 %}
+                            <span class="badge-equilibrio pendiente">🟡 Faltan {{ sb.boletas_para_equilibrio }} boletas pagadas para cubrir premios</span>
+                        {% endif %}
+                    </div>
+                    <!-- BARRA DE COBERTURA -->
+                    <div class="rent-progreso-bg">
+                        <div class="rent-progreso-fill" style="width: {{ sb.porcentaje_cobertura }}%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                        <small style="color: #94a3b8; font-size: 11px;">Cobertura de premios: {{ sb.porcentaje_cobertura }}% financiado con cobros reales</small>
+                        <small style="color: #cbd5e1; font-size: 11px;">⚪ <b>{{ sb.num_libres }}</b> números libres</small>
+                    </div>
+                </div>
+
+                <!-- RESULTADOS FINALES DE GANANCIA -->
+                <div class="rent-ganancias-destacadas">
+                    <div class="rent-ganancia-box {% if sb.ganancia_neta_actual >= 0 %}positiva{% else %}negativa{% endif %}">
+                        <small>📈 GANANCIA NETA COBRADA HOY</small>
+                        <strong>
+                            {% if sb.ganancia_neta_actual >= 0 %}+{% endif %}${{ "{:,.0f}".format(sb.ganancia_neta_actual).replace(",", ".") }}
+                        </strong>
+                        <span>(Recaudado pagado - Costo de Premios)</span>
+                    </div>
+                    <div class="rent-ganancia-box potencial">
+                        <small>🚀 GANANCIA SI SE LLENA LA TABLA (100%)</small>
+                        <strong style="color: var(--dorado);">
+                            ${{ "{:,.0f}".format(sb.ganancia_neta_maxima).replace(",", ".") }}
+                        </strong>
+                        <span>(100 boletas vendidas - Costo de Premios)</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="sin-resultados" style="padding: 20px;">
+            <p style="margin: 0;">No hay sorteos configurados para calcular rentabilidad. Crea uno en la sección de abajo.</p>
+        </div>
+        {% endif %}
+    </section>
+
+
     <!-- =================================================
          GESTIÓN DE SORTEOS Y TABLAS 00-99
     ================================================== -->

@@ -404,6 +404,17 @@ def mask_phone_filter(value):
     return mask_phone(value)
 
 
+def parse_precio(texto):
+    """
+    Extrae el valor numérico entero de cadenas con formato de moneda.
+    Ejemplo: '$320.000' -> 320000, '$50.000' -> 50000
+    """
+    if not texto:
+        return 0
+    limpio = re.sub(r"[^\d]", "", str(texto))
+    return int(limpio) if limpio else 0
+
+
 def required_admin():
     return session.get("admin") is True
 
@@ -885,12 +896,102 @@ def admin():
     boletas_pagadas = sum(1 for v in ventas if v.estado == "PAGADO")
     boletas_apartadas = sum(1 for v in ventas if v.estado == "PENDIENTE")
 
+    # =========================================================
+    # BALANCE FINANCIERO Y RENTABILIDAD POR SORTEO (PRIVADO)
+    # =========================================================
+    sorteos_con_balance = []
+    gran_total_premios = 0
+    gran_total_capacidad = 0
+    gran_total_ganancia_maxima = 0
+
+    for s in sorteos:
+        # Ventas correspondientes a este sorteo
+        ventas_s = [
+            v for v in ventas 
+            if v.sorteo_id == s.id or (v.sorteo_id is None and v.loteria == s.loteria and v.fecha == s.fecha)
+        ]
+
+        pagadas_s = [v for v in ventas_s if v.estado == "PAGADO"]
+        apartadas_s = [v for v in ventas_s if v.estado == "PENDIENTE"]
+
+        num_pagadas = len(pagadas_s)
+        num_apartadas = len(apartadas_s)
+        num_libres = max(0, 100 - (num_pagadas + num_apartadas))
+
+        val_boleta = s.valor or 0
+        capacidad_tabla = 100 * val_boleta  # Si se llena la tabla de 100 números
+
+        recaudado_s = sum(v.valor or val_boleta for v in pagadas_s)
+        por_recaudar_s = sum(v.valor or val_boleta for v in apartadas_s)
+        proyectado_s = recaudado_s + por_recaudar_s
+
+        costo_mayor = parse_precio(s.premio_mayor)
+        costo_primeras = parse_precio(s.premio_primeras)
+        costo_medio = parse_precio(s.premio_medio)
+        total_premios = costo_mayor + costo_primeras + costo_medio
+
+        # Ganancia neta real (lo cobrado menos el costo total de los premios)
+        ganancia_neta_actual = recaudado_s - total_premios
+
+        # Ganancia neta si se cobran los apartados
+        ganancia_con_apartados = proyectado_s - total_premios
+
+        # Ganancia neta máxima posible (si se vende la tabla completa de 100 números)
+        ganancia_neta_maxima = capacidad_tabla - total_premios
+
+        # Punto de equilibrio: cuántas boletas hay que vender como mínimo para pagar los premios
+        boletas_equilibrio = 0
+        if val_boleta > 0 and total_premios > 0:
+            boletas_equilibrio = total_premios // val_boleta
+            if total_premios % val_boleta != 0:
+                boletas_equilibrio += 1
+
+        # Porcentaje de cobertura de premios con las ventas pagadas actuales
+        porcentaje_cobertura = 0
+        if total_premios > 0:
+            porcentaje_cobertura = min(100, int((recaudado_s / total_premios) * 100))
+        elif recaudado_s > 0:
+            porcentaje_cobertura = 100
+
+        # Boletas que faltan para alcanzar el punto de equilibrio
+        boletas_para_equilibrio = max(0, boletas_equilibrio - num_pagadas)
+
+        gran_total_premios += total_premios
+        gran_total_capacidad += capacidad_tabla
+        gran_total_ganancia_maxima += ganancia_neta_maxima
+
+        sorteos_con_balance.append({
+            "sorteo": s,
+            "num_pagadas": num_pagadas,
+            "num_apartadas": num_apartadas,
+            "num_libres": num_libres,
+            "val_boleta": val_boleta,
+            "capacidad_tabla": capacidad_tabla,
+            "recaudado": recaudado_s,
+            "por_recaudar": por_recaudar_s,
+            "proyectado": proyectado_s,
+            "costo_mayor": costo_mayor,
+            "costo_primeras": costo_primeras,
+            "costo_medio": costo_medio,
+            "total_premios": total_premios,
+            "ganancia_neta_actual": ganancia_neta_actual,
+            "ganancia_con_apartados": ganancia_con_apartados,
+            "ganancia_neta_maxima": ganancia_neta_maxima,
+            "boletas_equilibrio": boletas_equilibrio,
+            "boletas_para_equilibrio": boletas_para_equilibrio,
+            "porcentaje_cobertura": porcentaje_cobertura
+        })
+
     finanzas = {
         "recaudado": total_recaudado,
         "por_recaudar": total_por_recaudar,
         "boletas_pagadas": boletas_pagadas,
         "boletas_apartadas": boletas_apartadas,
-        "total_ventas": len(ventas)
+        "total_ventas": len(ventas),
+        "gran_total_premios": gran_total_premios,
+        "gran_total_capacidad": gran_total_capacidad,
+        "gran_total_ganancia_maxima": gran_total_ganancia_maxima,
+        "ganancia_neta_global": total_recaudado - gran_total_premios
     }
 
     return render_template(
@@ -898,6 +999,7 @@ def admin():
         ventas=ventas,
         sorteos=sorteos,
         sorteos_activos=sorteos_activos,
+        sorteos_con_balance=sorteos_con_balance,
         medios_pago=medios_pago,
         ganadores_muro=ganadores_muro,
         finanzas=finanzas

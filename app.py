@@ -441,6 +441,79 @@ def obtener_datos_pago():
         return defaults
 
 
+def obtener_clientes_frecuentes(ventas_list):
+    """
+    Agrupa y rankea a los clientes por compras acumuladas, fidelidad y número favorito.
+    """
+    from collections import Counter
+    agrupados = {}
+
+    for v in ventas_list:
+        tel = (v.telefono or "").strip()
+        if not tel:
+            continue
+
+        if tel not in agrupados:
+            agrupados[tel] = {
+                "telefono": tel,
+                "nombre": v.nombre,
+                "total_boletas": 0,
+                "boletas_pagadas": 0,
+                "boletas_apartadas": 0,
+                "total_invertido": 0,
+                "numeros": [],
+                "sorteos": set(),
+                "ultima_fecha": v.fecha or ""
+            }
+
+        item = agrupados[tel]
+        if v.nombre and len(v.nombre) > len(item["nombre"]):
+            item["nombre"] = v.nombre
+
+        item["total_boletas"] += 1
+        if v.estado == "PAGADO":
+            item["boletas_pagadas"] += 1
+            item["total_invertido"] += (v.valor or 0)
+        else:
+            item["boletas_apartadas"] += 1
+
+        if v.numero:
+            item["numeros"].append(str(v.numero).strip().zfill(2))
+
+        if v.loteria:
+            item["sorteos"].add(f"{v.loteria} ({v.fecha})")
+
+        if v.fecha and v.fecha > item["ultima_fecha"]:
+            item["ultima_fecha"] = v.fecha
+
+    resultado = []
+    for tel, data in agrupados.items():
+        num_favorito = "N/A"
+        if data["numeros"]:
+            conteos = Counter(data["numeros"])
+            num_favorito = conteos.most_common(1)[0][0]
+
+        es_vip = data["total_boletas"] >= 3 or data["total_invertido"] >= 20000
+
+        resultado.append({
+            "telefono": data["telefono"],
+            "telefono_oculto": mask_phone(data["telefono"]),
+            "nombre": data["nombre"],
+            "total_boletas": data["total_boletas"],
+            "boletas_pagadas": data["boletas_pagadas"],
+            "boletas_apartadas": data["boletas_apartadas"],
+            "total_invertido": data["total_invertido"],
+            "numero_favorito": num_favorito,
+            "numeros_todos": ", ".join(sorted(list(set(data["numeros"])))),
+            "ultima_fecha": data["ultima_fecha"],
+            "total_dinamicas": len(data["sorteos"]),
+            "es_vip": es_vip
+        })
+
+    resultado.sort(key=lambda x: (x["total_boletas"], x["total_invertido"]), reverse=True)
+    return resultado
+
+
 # =========================================================
 # PÁGINA PRINCIPAL
 # =========================================================
@@ -741,19 +814,28 @@ def admin():
 
             if not numero:
                 raise ValueError(
-                    "Debes ingresar el número."
+                    "Debes ingresar al menos un número."
                 )
 
-            # Validar que el número sea de 2 cifras (00 al 99)
-            numero_limpio = numero.strip()
-            if not numero_limpio.isdigit() or len(numero_limpio) > 2:
+            # Extraer lista de números (soporta separación por comas, espacios, guiones, barras)
+            numeros_crudos = re.split(r"[,;\s/]+", numero.strip())
+            numeros_lista = []
+            for n_str in numeros_crudos:
+                n_clean = n_str.strip()
+                if not n_clean:
+                    continue
+                if not n_clean.isdigit() or len(n_clean) > 2:
+                    raise ValueError(
+                        f"El número '{n_clean}' no es válido. En Dinámicas Alex 2027 las rifas son del 00 al 99 (máximo 2 cifras)."
+                    )
+                num_fmt = f"{int(n_clean):02d}"
+                if num_fmt not in numeros_lista:
+                    numeros_lista.append(num_fmt)
+
+            if not numeros_lista:
                 raise ValueError(
-                    "En Dinámicas Alex 2027 las rifas son del 00 al 99. "
-                    "El número ingresado debe ser de máximo 2 cifras (ej: 05, 27, 99)."
+                    "Debes ingresar al menos un número válido (00 al 99)."
                 )
-
-            # Normalizar a exactamente 2 dígitos (ej: 7 -> 07)
-            numero = f"{int(numero_limpio):02d}"
 
             if not loteria:
                 raise ValueError(
@@ -799,54 +881,76 @@ def admin():
                 ).first()
 
             # =================================================
-            # COMPROBAR DUPLICADO ESTRICTO
+            # COMPROBAR DUPLICADOS EN LA LISTA DE NÚMEROS
             # =================================================
 
-            numero_int_str = str(int(numero))
+            ocupados = []
 
-            if sorteo:
-                existente = Venta.query.filter(
-                    Venta.sorteo_id == sorteo.id,
-                    (Venta.numero == numero) | (Venta.numero == numero_int_str)
-                ).first()
+            for num_fmt in numeros_lista:
+                numero_int_str = str(int(num_fmt))
 
-                if not existente:
+                if sorteo:
                     existente = Venta.query.filter(
-                        Venta.loteria == sorteo.loteria,
-                        Venta.fecha == sorteo.fecha,
-                        (Venta.numero == numero) | (Venta.numero == numero_int_str)
+                        Venta.sorteo_id == sorteo.id,
+                        (Venta.numero == num_fmt) | (Venta.numero == numero_int_str)
                     ).first()
-            else:
-                existente = Venta.query.filter(
-                    Venta.loteria == loteria,
-                    Venta.fecha == fecha,
-                    (Venta.numero == numero) | (Venta.numero == numero_int_str)
-                ).first()
 
-            if existente:
-                estado_lbl = "PAGADO 🟢" if existente.estado == "PAGADO" else "APARTADO 🟡"
+                    if not existente:
+                        existente = Venta.query.filter(
+                            Venta.loteria == sorteo.loteria,
+                            Venta.fecha == sorteo.fecha,
+                            (Venta.numero == num_fmt) | (Venta.numero == numero_int_str)
+                        ).first()
+                else:
+                    existente = Venta.query.filter(
+                        Venta.loteria == loteria,
+                        Venta.fecha == fecha,
+                        (Venta.numero == num_fmt) | (Venta.numero == numero_int_str)
+                    ).first()
+
+                if existente:
+                    estado_lbl = "PAGADO 🟢" if existente.estado == "PAGADO" else "APARTADO 🟡"
+                    ocupados.append(f"#{num_fmt} ({estado_lbl} por {existente.nombre})")
+
+            if ocupados:
                 flash(
-                    f"⛔ ERROR: El número #{numero} YA ESTÁ OCUPADO ({estado_lbl}) por {existente.nombre} (Tel: {existente.telefono}) en {existente.loteria} ({existente.fecha}). No se puede volver a vender.",
+                    f"⛔ ERROR: No se pudo registrar la venta porque los siguientes números YA ESTÁN OCUPADOS: {', '.join(ocupados)}.",
                     "error"
                 )
 
             else:
 
-                venta = Venta(
-                    telefono=telefono,
-                    nombre=nombre,
-                    numero=numero,
-                    loteria=loteria,
-                    fecha=fecha,
-                    valor=valor,
-                    estado=estado,
-                    sorteo_id=(sorteo.id if sorteo else None)
-                )
+                # Distribuir el valor total del combo entre las boletas registradas
+                cant_nums = len(numeros_lista)
+                valor_unitario = valor // cant_nums if cant_nums > 0 else valor
+                sobrante = valor % cant_nums if cant_nums > 0 else 0
 
-                db.session.add(venta)
+                ventas_creadas = []
+
+                for idx, num_fmt in enumerate(numeros_lista):
+                    val_item = valor_unitario + (sobrante if idx == 0 else 0)
+                    nueva_v = Venta(
+                        telefono=telefono,
+                        nombre=nombre,
+                        numero=num_fmt,
+                        loteria=loteria,
+                        fecha=fecha,
+                        valor=val_item,
+                        estado=estado,
+                        sorteo_id=(sorteo.id if sorteo else None)
+                    )
+                    db.session.add(nueva_v)
+                    ventas_creadas.append(num_fmt)
+
                 db.session.commit()
 
-                flash("✅ Venta registrada correctamente.", "ok")
+                if len(ventas_creadas) > 1:
+                    flash(
+                        f"✅ ¡COMBO REGISTRADO! Se asignaron {len(ventas_creadas)} boletas (#{', #'.join(ventas_creadas)}) a {nombre} por un total de ${valor:,.0f}.",
+                        "ok"
+                    )
+                else:
+                    flash(f"✅ Venta registrada correctamente: Boleta #{ventas_creadas[0]} para {nombre}.", "ok")
 
 
         except Exception as error:
@@ -889,6 +993,9 @@ def admin():
         .limit(30)
         .all()
     )
+
+    # Clientes frecuentes clasificados
+    clientes_frecuentes = obtener_clientes_frecuentes(ventas)
 
     # Finanzas y métricas en vivo
     total_recaudado = sum(v.valor or 0 for v in ventas if v.estado == "PAGADO")
@@ -991,7 +1098,9 @@ def admin():
         "gran_total_premios": gran_total_premios,
         "gran_total_capacidad": gran_total_capacidad,
         "gran_total_ganancia_maxima": gran_total_ganancia_maxima,
-        "ganancia_neta_global": total_recaudado - gran_total_premios
+        "ganancia_neta_global": total_recaudado - gran_total_premios,
+        "total_clientes_unicos": len(clientes_frecuentes),
+        "clientes_vip": sum(1 for c in clientes_frecuentes if c["es_vip"])
     }
 
     return render_template(
@@ -1000,10 +1109,115 @@ def admin():
         sorteos=sorteos,
         sorteos_activos=sorteos_activos,
         sorteos_con_balance=sorteos_con_balance,
+        clientes_frecuentes=clientes_frecuentes,
         medios_pago=medios_pago,
         ganadores_muro=ganadores_muro,
         finanzas=finanzas
     )
+
+
+# =========================================================
+# BACKUP INTEGRAL MULTI-HOJA EN EXCEL
+# =========================================================
+
+@app.get("/admin/backup")
+def descargar_backup():
+
+    if not required_admin():
+        return redirect(url_for("login"))
+
+    try:
+        # 1. Ventas
+        ventas = Venta.query.order_by(Venta.id.desc()).all()
+        datos_ventas = []
+        for v in ventas:
+            datos_ventas.append({
+                "ID": v.id,
+                "Telefono": v.telefono,
+                "Nombre": v.nombre,
+                "Numero": v.numero,
+                "Loteria": v.loteria,
+                "Fecha": v.fecha,
+                "Valor": v.valor,
+                "Estado": v.estado,
+                "Sorteo": v.sorteo.nombre if v.sorteo else ""
+            })
+
+        # 2. Sorteos
+        sorteos = Sorteo.query.order_by(Sorteo.id.desc()).all()
+        datos_sorteos = []
+        for s in sorteos:
+            datos_sorteos.append({
+                "ID": s.id,
+                "Nombre": s.nombre,
+                "Loteria": s.loteria,
+                "Fecha": s.fecha,
+                "Horario": s.horario,
+                "Valor_Boleta": s.valor,
+                "Premio_Mayor": s.premio_mayor,
+                "Premio_Primeras": s.premio_primeras,
+                "Premio_Medio": s.premio_medio,
+                "Estado": s.estado
+            })
+
+        # 3. Ganadores
+        ganadores = GanadorHistorico.query.order_by(GanadorHistorico.id.desc()).all()
+        datos_ganadores = []
+        for g in ganadores:
+            datos_ganadores.append({
+                "ID": g.id,
+                "Nombre": g.nombre,
+                "Numero": g.numero,
+                "Categoria": g.categoria,
+                "Premio": g.premio,
+                "Loteria": g.loteria,
+                "Fecha": g.fecha,
+                "Sorteo": g.sorteo_nombre,
+                "Cifras_Oficiales": g.cifras_sorteo
+            })
+
+        # 4. Clientes Frecuentes
+        clientes = obtener_clientes_frecuentes(ventas)
+        datos_clientes = []
+        for c in clientes:
+            datos_clientes.append({
+                "Telefono": c["telefono"],
+                "Nombre": c["nombre"],
+                "Total_Boletas": c["total_boletas"],
+                "Boletas_Pagadas": c["boletas_pagadas"],
+                "Boletas_Apartadas": c["boletas_apartadas"],
+                "Total_Invertido": c["total_invertido"],
+                "Numero_Favorito": c["numero_favorito"],
+                "Numeros_Jugados": c["numeros_todos"],
+                "Ultima_Fecha": c["ultima_fecha"],
+                "Es_VIP": "SI" if c["es_vip"] else "NO"
+            })
+
+        # 5. Medios de Pago
+        ajustes = Ajuste.query.all()
+        datos_ajustes = [{"Clave": a.clave, "Valor": a.valor} for a in ajustes]
+
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            pd.DataFrame(datos_ventas).to_excel(writer, index=False, sheet_name="Ventas")
+            pd.DataFrame(datos_sorteos).to_excel(writer, index=False, sheet_name="Sorteos")
+            pd.DataFrame(datos_ganadores).to_excel(writer, index=False, sheet_name="Ganadores")
+            pd.DataFrame(datos_clientes).to_excel(writer, index=False, sheet_name="Clientes_Directorio")
+            pd.DataFrame(datos_ajustes).to_excel(writer, index=False, sheet_name="Ajustes_Medios_Pago")
+
+        output.seek(0)
+        fecha_str = datetime.now().strftime("%Y-%m-%d")
+
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name=f"dinamicas_alex_2027_backup_completo_{fecha_str}.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as error:
+        flash(f"Error al generar respaldo: {str(error)}", "error")
+        return redirect(url_for("admin"))
 
 
 # =========================================================

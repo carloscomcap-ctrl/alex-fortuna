@@ -550,20 +550,15 @@
                 >
 
 
-                <!-- NÚMERO -->
+                <!-- NÚMERO O COMBO -->
 
                 <input
                     type="text"
                     name="numero"
                     id="numero-venta"
-                    placeholder="🎟️ Número (00 al 99)"
-                    inputmode="numeric"
-                    maxlength="2"
-                    pattern="[0-9]{1,2}"
+                    placeholder="🎟️ Número(s) ej: 27 o combo: 14, 27, 88"
                     required
-                    oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 2)"
-                    onblur="if(this.value.length === 1) this.value = '0' + this.value"
-                    title="Solo números del 00 al 99"
+                    title="Ingresa 1 número (ej: 07) o varios separados por coma (ej: 14, 27, 88)"
                 >
 
 
@@ -643,13 +638,13 @@
                 >
 
 
-                <!-- VALOR -->
+                <!-- VALOR TOTAL -->
 
                 <input
                     type="number"
                     name="valor"
                     id="valor-venta"
-                    placeholder="💰 Valor"
+                    placeholder="💰 Valor Total"
                     min="0"
                     step="100"
                     required
@@ -687,10 +682,7 @@
 
 
         <p class="hint">
-
-            ⚠️ Un mismo número no puede registrarse dos veces
-            para la misma lotería.
-
+            💡 <b>Venta individual o en combo:</b> Puedes escribir un solo número (ej: <code>07</code>) o varios números a la vez separados por comas o espacios (ej: <code>14, 27, 88</code>). El valor total ingresado se distribuirá equitativamente entre las boletas.
         </p>
 
     </section>
@@ -698,27 +690,119 @@
 
 
     <!-- =================================================
-         EXCEL
+         DIRECTORIO DE CLIENTES FRECUENTES Y FIDELIZACIÓN
+    ================================================== -->
+    <section class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+                <h2>👥 Directorio de Clientes Frecuentes y Fidelización</h2>
+                <p class="hint">
+                    Historial acumulado de tus compradores: conoce quiénes son tus clientes VIP, su número favorito y envíales invitación por WhatsApp en 1 clic cuando abras un sorteo.
+                </p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span class="badge-privado-admin">⭐ {{ finanzas.clientes_vip }} Clientes VIP</span>
+                <span class="badge-privado-admin">👤 {{ finanzas.total_clientes_unicos }} Clientes Registrados</span>
+            </div>
+        </div>
+
+        {% if clientes_frecuentes %}
+        <!-- BUSCADOR DE CLIENTES -->
+        <div style="margin-bottom: 14px;">
+            <input type="text" id="buscador-clientes-input" placeholder="🔍 Buscar cliente por nombre, teléfono o número favorito..." style="width: 100%; max-width: 480px; padding: 10px 14px; background: #070d18; border: 1px solid #20334d; border-radius: 8px; color: #fff;">
+        </div>
+
+        <div class="tabla-scroll">
+            <table class="tabla-datos" id="tabla-clientes-directorio">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Total Boletas</th>
+                        <th>Inversión Acumulada</th>
+                        <th>🌟 Número Favorito</th>
+                        <th>Categoría</th>
+                        <th>Acción Rápida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes_frecuentes %}
+                    <tr class="fila-cliente-dir">
+                        <td>
+                            <b>{{ c.nombre }}</b>
+                            {% if c.es_vip %}
+                            <span style="color: var(--dorado); font-size: 11px; margin-left: 4px;">👑 VIP</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ c.telefono }}</td>
+                        <td>
+                            <strong>{{ c.total_boletas }} boletas</strong>
+                            <small style="display: block; color: var(--gris); font-size: 10px;">({{ c.boletas_pagadas }} pagadas / {{ c.boletas_apartadas }} apartadas)</small>
+                        </td>
+                        <td>
+                            <span style="color: #86efac; font-weight: bold;">
+                                ${{ "{:,.0f}".format(c.total_invertido).replace(",", ".") }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="color: var(--dorado); font-size: 16px;">
+                                {% if c.numero_favorito != 'N/A' %}#{{ c.numero_favorito }}{% else %}—{% endif %}
+                            </strong>
+                        </td>
+                        <td>
+                            {% if c.es_vip %}
+                            <span class="badge-ganador-categoria" style="background: rgba(245, 197, 66, 0.18); color: var(--dorado); font-size: 11px;">
+                                🏆 VIP PLATINUM
+                            </span>
+                            {% else %}
+                            <span class="badge-sorteo-estado activo" style="font-size: 10px; padding: 2px 6px;">
+                                👤 Comprador
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button type="button" 
+                                    class="btn-wa-confirmar" 
+                                    style="padding: 6px 12px; font-size: 11px;"
+                                    onclick="invitarClienteNuevoSorteoWA('{{ c.nombre }}', '{{ c.telefono }}', '{{ c.numero_favorito }}')"
+                                    title="Enviar invitación personalizada por WhatsApp">
+                                📲 Invitar por WA
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="sin-resultados" style="padding: 20px;">
+            <p style="margin: 0;">No hay clientes registrados aún. Aparecerán aquí automáticamente al registrar ventas.</p>
+        </div>
+        {% endif %}
+    </section>
+
+
+
+    <!-- =================================================
+         EXCEL Y RESPALDO COMPLETO DE BASE DE DATOS
     ================================================== -->
 
     <section class="admin-card">
 
-        <h2>
-            📊 Gestión de Excel
-        </h2>
-
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+                <h2>📊 Gestión de Excel y Copia de Seguridad</h2>
+                <p class="hint">Importa ventas masivas desde Excel o descarga una copia de seguridad integral con todos tus datos.</p>
+            </div>
+            <a href="{{ url_for('descargar_backup') }}" class="btn-oro" style="text-decoration: none; padding: 10px 18px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;">
+                💾 DESCARGAR COPIA DE SEGURIDAD TOTAL (EXCEL)
+            </a>
+        </div>
 
         <p>
-
-            Columnas requeridas:
-
-            <strong>
-                telefono, nombre, numero, loteria,
-                fecha, valor, estado
-            </strong>
-
+            Columnas requeridas para importar:
+            <strong>telefono, nombre, numero, loteria, fecha, valor, estado</strong>
         </p>
-
 
         <form
             method="POST"
@@ -734,24 +818,17 @@
                 required
             >
 
-
             <button type="submit">
-
-                📤 IMPORTAR EXCEL
-
+                📤 IMPORTAR VENTAS EXCEL
             </button>
 
         </form>
 
-
-        <br>
-
-
-        <a href="{{ url_for('exportar') }}">
-
-            📥 Descargar Excel
-
-        </a>
+        <div style="margin-top: 15px;">
+            <a href="{{ url_for('exportar') }}" style="color: var(--dorado); text-decoration: underline; font-size: 13px;">
+                📥 Exportar solo tabla de ventas simple (.xlsx)
+            </a>
+        </div>
 
     </section>
 
@@ -1566,6 +1643,39 @@ function enviarFelicitarGanadorWA(nombre, telefono, numero, loteria) {
 
     window.open(`https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`, "_blank");
 }
+
+function invitarClienteNuevoSorteoWA(nombre, telefono, numFavorito) {
+    let cleanTel = (telefono || "").replace(/\D/g, "");
+    if (cleanTel.length === 10) cleanTel = "57" + cleanTel;
+
+    const favTexto = (numFavorito && numFavorito !== "N/A") 
+        ? `¿Te apartamos tu número de la suerte *#${numFavorito}* antes de que se lo lleven? 🎟️✨` 
+        : `¿Cuál número te gustaría jugar hoy para activar tu suerte? 🎟️✨`;
+
+    const msg = `¡Hola *${nombre}*! 🍀👋\n\n` +
+        `Te saludamos de *DINÁMICAS ALEX 2027*.\n\n` +
+        `🔥 ¡Ya abrimos la nueva tabla oficial para la jugada de hoy!\n` +
+        `${favTexto}\n\n` +
+        `🏆 *Recuerda que juegas por Premio Mayor y Premios Secundarios.* ¡Muchos éxitos y bendiciones! 💰❤️`;
+
+    window.open(`https://wa.me/${cleanTel}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+/* =========================================================
+   BUSCADOR DE CLIENTES FRECUENTES
+========================================================= */
+const inputBuscadorClientes = document.getElementById("buscador-clientes-input");
+if (inputBuscadorClientes) {
+    inputBuscadorClientes.addEventListener("input", function() {
+        const query = normalizarTexto(this.value);
+        const filas = document.querySelectorAll(".fila-cliente-dir");
+        filas.forEach(f => {
+            const texto = normalizarTexto(f.innerText || f.textContent);
+            f.style.display = (!query || texto.includes(query)) ? "" : "none";
+        });
+    });
+}
+
 
 
 /* =========================================================
